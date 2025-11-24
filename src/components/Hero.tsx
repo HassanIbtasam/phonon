@@ -1,5 +1,6 @@
-import { Shield, Zap, Lock } from "lucide-react";
+import { Zap, Lock, ScanLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import phononLogo from "@/assets/phonon-logo.jpeg";
 
 interface HeroProps {
   onGetStarted: () => void;
@@ -15,18 +16,18 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8">
-        {/* Logo/Icon */}
+        {/* Logo */}
         <div className="flex justify-center mb-6 animate-in fade-in slide-in-from-top duration-700">
           <div className="relative">
-            <div className="absolute inset-0 bg-primary blur-2xl opacity-50" />
-            <Shield className="w-24 h-24 text-primary relative z-10" strokeWidth={1.5} />
+            <div className="absolute inset-0 bg-primary blur-3xl opacity-40" />
+            <img src={phononLogo} alt="Phonon Logo" className="w-32 h-32 object-contain relative z-10" />
           </div>
         </div>
 
         {/* Headline */}
         <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight animate-in fade-in slide-in-from-bottom duration-700 delay-100">
           <span className="bg-gradient-primary bg-clip-text text-transparent">
-            ScamShield AI
+            Phonon
           </span>
         </h1>
 
@@ -51,7 +52,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
         {/* Feature highlights */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-16 animate-in fade-in duration-700 delay-500">
           <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 hover:border-primary/50 transition-colors">
-            <Shield className="w-8 h-8 text-primary mx-auto mb-3" />
+            <ScanLine className="w-8 h-8 text-primary mx-auto mb-3" />
             <h3 className="font-display font-semibold mb-2">AI Protection</h3>
             <p className="text-sm text-muted-foreground">Advanced detection algorithms</p>
           </div>
