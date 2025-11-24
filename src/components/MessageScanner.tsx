@@ -29,94 +29,53 @@ export const MessageScanner = () => {
 
     setIsScanning(true);
     
-    // Simulate API call with mock detection logic
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    const mockAnalysis = analyzeMockMessage(message);
-    setResult({
-      ...mockAnalysis,
-      timestamp: new Date(),
-    });
-    
-    setIsScanning(false);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/detect-scam`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ message }),
+        }
+      );
 
-    // Save to history
-    const history = JSON.parse(localStorage.getItem("scanHistory") || "[]");
-    history.unshift({
-      message: message.substring(0, 100),
-      ...mockAnalysis,
-      timestamp: new Date().toISOString(),
-    });
-    localStorage.setItem("scanHistory", JSON.stringify(history.slice(0, 50)));
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to analyze message");
+      }
+
+      const analysis = await response.json();
+      
+      setResult({
+        risk: analysis.risk,
+        reason: analysis.reason,
+        timestamp: new Date(),
+      });
+
+      // Save to history
+      const history = JSON.parse(localStorage.getItem("scanHistory") || "[]");
+      history.unshift({
+        message: message.substring(0, 100),
+        risk: analysis.risk,
+        reason: analysis.reason,
+        timestamp: new Date().toISOString(),
+      });
+      localStorage.setItem("scanHistory", JSON.stringify(history.slice(0, 50)));
+    } catch (error) {
+      console.error("Scan error:", error);
+      toast({
+        title: "Scan failed",
+        description: error instanceof Error ? error.message : "Failed to analyze message",
+        variant: "destructive",
+      });
+    } finally {
+      setIsScanning(false);
+    }
   };
 
-  const analyzeMockMessage = (text: string): Omit<ScanResult, "timestamp"> => {
-    const lowerText = text.toLowerCase();
-    
-    // High risk indicators
-    const highRiskPatterns = [
-      /urgent.*account/i,
-      /verify.*identity/i,
-      /suspended.*account/i,
-      /claim.*prize/i,
-      /congratulations.*won/i,
-      /click.*link.*immediately/i,
-      /bitcoin|cryptocurrency/i,
-      /transfer.*money/i,
-      /tax.*refund/i,
-      /social.*security/i,
-    ];
-
-    // Medium risk indicators
-    const mediumRiskPatterns = [
-      /act now/i,
-      /limited time/i,
-      /confirm.*details/i,
-      /update.*information/i,
-      /unusual activity/i,
-    ];
-
-    // Check for suspicious URLs
-    const hasUrl = /https?:\/\//i.test(text);
-    const hasShortenedUrl = /bit\.ly|tinyurl|t\.co/i.test(text);
-
-    for (const pattern of highRiskPatterns) {
-      if (pattern.test(text)) {
-        return {
-          risk: "high",
-          reason: "Contains urgent language and suspicious requests commonly used in scam messages. Be very cautious and do not click any links or provide personal information.",
-        };
-      }
-    }
-
-    if (hasShortenedUrl) {
-      return {
-        risk: "high",
-        reason: "Contains shortened URLs which are commonly used to hide malicious links. Never click on shortened links from unknown sources.",
-      };
-    }
-
-    for (const pattern of mediumRiskPatterns) {
-      if (pattern.test(text)) {
-        return {
-          risk: "medium",
-          reason: "Contains pressure tactics or requests for information. Verify the sender's identity through official channels before responding.",
-        };
-      }
-    }
-
-    if (hasUrl) {
-      return {
-        risk: "medium",
-        reason: "Contains a URL. Always verify links are from legitimate sources before clicking.",
-      };
-    }
-
-    return {
-      risk: "low",
-      reason: "No obvious scam indicators detected. However, always stay vigilant with messages from unknown sources.",
-    };
-  };
 
   const getRiskIcon = () => {
     if (!result) return null;
