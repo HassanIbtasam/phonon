@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.84.0';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,13 +12,57 @@ serve(async (req) => {
   }
 
   try {
-    const { message } = await req.json();
+    const { message, phoneNumber, action, status } = await req.json();
+    
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Handle flagging action
+    if (action === 'flag' && phoneNumber) {
+      const { data, error } = await supabase
+        .from('flagged_numbers')
+        .upsert({ 
+          phone_number: phoneNumber, 
+          status: status,
+          message_context: message?.substring(0, 500)
+        }, {
+          onConflict: 'phone_number'
+        });
+
+      if (error) {
+        console.error('Error flagging number:', error);
+        return new Response(
+          JSON.stringify({ error: 'Failed to flag number' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, message: 'Number flagged successfully' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     
     if (!message || typeof message !== 'string') {
       return new Response(
         JSON.stringify({ error: "Message is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Check if phone number is already flagged
+    let flaggedInfo = '';
+    if (phoneNumber) {
+      const { data: flaggedData } = await supabase
+        .from('flagged_numbers')
+        .select('status, flagged_at')
+        .eq('phone_number', phoneNumber)
+        .single();
+
+      if (flaggedData) {
+        flaggedInfo = `\n\nIMPORTANT: This phone number (${phoneNumber}) has been previously flagged as "${flaggedData.status}" by users on ${new Date(flaggedData.flagged_at).toLocaleDateString()}. Consider this in your analysis.`;
+      }
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -38,11 +83,12 @@ Consider these scam indicators:
 - Requests to transfer money or gift cards
 - Cryptocurrency/investment schemes
 - Phishing attempts
+${flaggedInfo}
 
 Respond ONLY with a JSON object in this exact format:
 {
   "risk": "low" | "medium" | "high",
-  "reason": "Brief explanation of your assessment"
+  "reason": "Brief explanation of your assessment in the same language as the message"
 }
 
 Be strict in your evaluation - err on the side of caution.`;
