@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Shield, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ScanResult {
   risk: "low" | "medium" | "high";
@@ -16,12 +17,13 @@ export const MessageScanner = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [result, setResult] = useState<ScanResult | null>(null);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleScan = async () => {
     if (!message.trim()) {
       toast({
-        title: "Empty message",
-        description: "Please enter a message to scan",
+        title: t("scanner.empty"),
+        description: t("scanner.emptyDesc"),
         variant: "destructive",
       });
       return;
@@ -67,8 +69,8 @@ export const MessageScanner = () => {
     } catch (error) {
       console.error("Scan error:", error);
       toast({
-        title: "Scan failed",
-        description: error instanceof Error ? error.message : "Failed to analyze message",
+        title: t("scanner.failed"),
+        description: error instanceof Error ? error.message : t("scanner.failedDesc"),
         variant: "destructive",
       });
     } finally {
@@ -108,26 +110,26 @@ export const MessageScanner = () => {
     
     switch (result.risk) {
       case "high":
-        return "High Risk - Likely Scam";
+        return t("result.high");
       case "medium":
-        return "Medium Risk - Be Cautious";
+        return t("result.medium");
       case "low":
-        return "Low Risk - Appears Safe";
+        return t("result.low");
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 space-y-8">
       <div className="text-center space-y-4">
-        <h2 className="font-display text-4xl font-bold">Scan a Message</h2>
-        <p className="text-muted-foreground">Paste any suspicious message below for instant AI analysis</p>
+        <h2 className="font-display text-4xl font-bold">{t("scanner.title")}</h2>
+        <p className="text-muted-foreground">{t("scanner.subtitle")}</p>
       </div>
 
       <Card className="p-6 bg-gradient-card border-border shadow-card space-y-6">
         <div className="space-y-3">
-          <label className="text-sm font-medium">Message Content</label>
+          <label className="text-sm font-medium">{t("scanner.label")}</label>
           <Textarea
-            placeholder="Paste the message you want to check here..."
+            placeholder={t("scanner.placeholder")}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             className="min-h-[200px] bg-secondary border-border resize-none"
@@ -143,12 +145,12 @@ export const MessageScanner = () => {
           {isScanning ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Analyzing...
+              {t("scanner.analyzing")}
             </>
           ) : (
             <>
               <Shield className="w-5 h-5 mr-2" />
-              Scan Message
+              {t("scanner.button")}
             </>
           )}
         </Button>
@@ -162,13 +164,13 @@ export const MessageScanner = () => {
               <div className="flex-1">
                 <h3 className="font-display text-xl font-bold">{getRiskLabel()}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Scanned {result.timestamp.toLocaleTimeString()}
+                  {t("result.scanned")} {result.timestamp.toLocaleTimeString()}
                 </p>
               </div>
             </div>
             
             <div className="pt-4 border-t border-border">
-              <h4 className="font-semibold mb-2">Analysis</h4>
+              <h4 className="font-semibold mb-2">{t("result.analysis")}</h4>
               <p className="text-muted-foreground leading-relaxed">{result.reason}</p>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Shield, AlertTriangle, CheckCircle2, TrendingUp } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ScanHistoryItem {
   message: string;
@@ -17,6 +18,7 @@ export const Dashboard = () => {
     medium: 0,
     low: 0,
   });
+  const { t } = useLanguage();
 
   useEffect(() => {
     const loadHistory = () => {
@@ -66,8 +68,8 @@ export const Dashboard = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-12 space-y-8">
       <div className="text-center space-y-4">
-        <h2 className="font-display text-4xl font-bold">Dashboard</h2>
-        <p className="text-muted-foreground">Your scam protection analytics</p>
+        <h2 className="font-display text-4xl font-bold">{t("dashboard.title")}</h2>
+        <p className="text-muted-foreground">{t("dashboard.subtitle")}</p>
       </div>
 
       {/* Stats Grid */}
@@ -75,7 +77,7 @@ export const Dashboard = () => {
         <Card className="p-6 bg-gradient-card border-border shadow-card hover:shadow-glow transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Total Scans</p>
+              <p className="text-sm text-muted-foreground mb-1">{t("dashboard.totalScans")}</p>
               <p className="text-3xl font-bold font-display">{stats.total}</p>
             </div>
             <TrendingUp className="w-8 h-8 text-primary opacity-50" />
@@ -85,7 +87,7 @@ export const Dashboard = () => {
         <Card className="p-6 bg-gradient-card border-border shadow-card hover:border-destructive/50 transition-colors">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">High Risk</p>
+              <p className="text-sm text-muted-foreground mb-1">{t("dashboard.highRisk")}</p>
               <p className="text-3xl font-bold font-display text-destructive">{stats.high}</p>
             </div>
             <AlertTriangle className="w-8 h-8 text-destructive opacity-50" />
@@ -95,7 +97,7 @@ export const Dashboard = () => {
         <Card className="p-6 bg-gradient-card border-border shadow-card hover:border-warning/50 transition-colors">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Medium Risk</p>
+              <p className="text-sm text-muted-foreground mb-1">{t("dashboard.mediumRisk")}</p>
               <p className="text-3xl font-bold font-display text-warning">{stats.medium}</p>
             </div>
             <Shield className="w-8 h-8 text-warning opacity-50" />
@@ -105,7 +107,7 @@ export const Dashboard = () => {
         <Card className="p-6 bg-gradient-card border-border shadow-card hover:border-success/50 transition-colors">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Low Risk</p>
+              <p className="text-sm text-muted-foreground mb-1">{t("dashboard.lowRisk")}</p>
               <p className="text-3xl font-bold font-display text-success">{stats.low}</p>
             </div>
             <CheckCircle2 className="w-8 h-8 text-success opacity-50" />
@@ -115,12 +117,12 @@ export const Dashboard = () => {
 
       {/* Recent Scans */}
       <Card className="p-6 bg-gradient-card border-border shadow-card">
-        <h3 className="font-display text-2xl font-bold mb-6">Recent Scans</h3>
+        <h3 className="font-display text-2xl font-bold mb-6">{t("dashboard.recentScans")}</h3>
         
         {history.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <Shield className="w-16 h-16 mx-auto mb-4 opacity-50" />
-            <p>No scans yet. Start by scanning a message above.</p>
+            <p>{t("dashboard.noScans")}</p>
           </div>
         ) : (
           <div className="space-y-3">
