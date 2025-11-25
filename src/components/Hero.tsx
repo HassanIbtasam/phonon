@@ -1,5 +1,6 @@
 import { Zap, Lock, ScanLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 import phononLogo from "@/assets/phonon-logo.jpeg";
 
 interface HeroProps {
@@ -7,6 +8,8 @@ interface HeroProps {
 }
 
 export const Hero = ({ onGetStarted }: HeroProps) => {
+  const { t } = useLanguage();
+  
   return (
     <div className="relative min-h-[90vh] flex items-center justify-center px-4 overflow-hidden">
       {/* Animated background elements */}
@@ -27,14 +30,13 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
         {/* Headline */}
         <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight animate-in fade-in slide-in-from-bottom duration-700 delay-100">
           <span className="bg-gradient-primary bg-clip-text text-transparent">
-            Phonon
+            {t("hero.title")}
           </span>
         </h1>
 
         {/* Subheadline */}
         <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom duration-700 delay-200">
-          Protect yourself from scams with AI-powered message analysis. 
-          Detect suspicious messages instantly.
+          {t("hero.subtitle")}
         </p>
 
         {/* CTA Button */}
@@ -45,7 +47,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
             className="bg-gradient-primary hover:shadow-glow transition-all duration-300 text-lg px-8 py-6 font-semibold"
           >
             <Zap className="w-5 h-5 mr-2" />
-            Scan a Message Now
+            {t("hero.cta")}
           </Button>
         </div>
 
@@ -53,20 +55,20 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-16 animate-in fade-in duration-700 delay-500">
           <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 hover:border-primary/50 transition-colors">
             <ScanLine className="w-8 h-8 text-primary mx-auto mb-3" />
-            <h3 className="font-display font-semibold mb-2">AI Protection</h3>
-            <p className="text-sm text-muted-foreground">Advanced detection algorithms</p>
+            <h3 className="font-display font-semibold mb-2">{t("hero.feature1.title")}</h3>
+            <p className="text-sm text-muted-foreground">{t("hero.feature1.desc")}</p>
           </div>
           
           <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 hover:border-primary/50 transition-colors">
             <Zap className="w-8 h-8 text-warning mx-auto mb-3" />
-            <h3 className="font-display font-semibold mb-2">Instant Analysis</h3>
-            <p className="text-sm text-muted-foreground">Real-time scam detection</p>
+            <h3 className="font-display font-semibold mb-2">{t("hero.feature2.title")}</h3>
+            <p className="text-sm text-muted-foreground">{t("hero.feature2.desc")}</p>
           </div>
           
           <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 hover:border-primary/50 transition-colors">
             <Lock className="w-8 h-8 text-success mx-auto mb-3" />
-            <h3 className="font-display font-semibold mb-2">Privacy First</h3>
-            <p className="text-sm text-muted-foreground">Your data stays secure</p>
+            <h3 className="font-display font-semibold mb-2">{t("hero.feature3.title")}</h3>
+            <p className="text-sm text-muted-foreground">{t("hero.feature3.desc")}</p>
           </div>
         </div>
       </div>
