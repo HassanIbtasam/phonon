@@ -64,16 +64,16 @@ export const MessageScanner = () => {
         timestamp: new Date(),
       });
 
-      // Save to history
-      const history = JSON.parse(localStorage.getItem("scanHistory") || "[]");
-      history.unshift({
-        message: message.substring(0, 100),
-        phoneNumber: phoneNumber || null,
-        risk: data.risk,
-        reason: data.reason,
-        timestamp: new Date().toISOString(),
-      });
-      localStorage.setItem("scanHistory", JSON.stringify(history.slice(0, 50)));
+      // Save to database if user is logged in
+      if (user) {
+        await supabase.from('scan_history').insert({
+          user_id: user.id,
+          message_preview: message.substring(0, 100),
+          phone_number: phoneNumber.trim() || null,
+          risk_level: data.risk,
+          reason: data.reason
+        });
+      }
     } catch (error) {
       console.error("Scan error:", error);
       toast({
@@ -87,16 +87,6 @@ export const MessageScanner = () => {
   };
 
   const handleFlag = async (status: 'scam' | 'safe') => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to flag numbers",
-        variant: "destructive",
-      });
-      navigate("/auth");
-      return;
-    }
-
     if (!phoneNumber.trim()) {
       toast({
         title: t("scanner.empty"),
@@ -110,6 +100,11 @@ export const MessageScanner = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
+      const headers: Record<string, string> = {};
+      if (session?.access_token) {
+        headers.Authorization = `Bearer ${session.access_token}`;
+      }
+      
       const { data, error } = await supabase.functions.invoke('detect-scam', {
         body: { 
           action: 'flag',
@@ -117,9 +112,7 @@ export const MessageScanner = () => {
           status,
           message
         },
-        headers: {
-          Authorization: `Bearer ${session?.access_token}`
-        }
+        headers: Object.keys(headers).length > 0 ? headers : undefined
       });
 
       if (error) throw error;
@@ -190,7 +183,16 @@ export const MessageScanner = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 space-y-8">
       <div className="text-center space-y-4">
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end gap-2 mb-4">
+          {user && (
+            <Button
+              onClick={() => navigate("/history")}
+              variant="outline"
+              size="sm"
+            >
+              My History
+            </Button>
+          )}
           {user ? (
             <Button
               onClick={handleLogout}

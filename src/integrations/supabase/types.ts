@@ -41,6 +41,36 @@ export type Database = {
         }
         Relationships: []
       }
+      scan_history: {
+        Row: {
+          id: string
+          message_preview: string
+          phone_number: string | null
+          reason: string
+          risk_level: string
+          scanned_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          message_preview: string
+          phone_number?: string | null
+          reason: string
+          risk_level: string
+          scanned_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          message_preview?: string
+          phone_number?: string | null
+          reason?: string
+          risk_level?: string
+          scanned_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
