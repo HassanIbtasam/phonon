@@ -64,7 +64,7 @@ const translations = {
     "dashboard.noScans": "No scans yet. Start by scanning a message above.",
     
     // Footer
-    "footer.copyright": "© 2024 Phonon AI. Protecting users with advanced AI detection.",
+    "footer.copyright": "© 2025 Phonon AI. Protecting users with advanced AI detection.",
     "footer.disclaimer": "Always verify suspicious messages through official channels.",
   },
   ar: {
@@ -122,7 +122,7 @@ const translations = {
     "dashboard.noScans": "لا توجد عمليات مسح بعد. ابدأ بمسح رسالة أعلاه.",
     
     // Footer
-    "footer.copyright": "© 2024 فونون AI. حماية المستخدمين بالكشف المتقدم بالذكاء الاصطناعي.",
+    "footer.copyright": "© 2025 فونون AI. حماية المستخدمين بالكشف المتقدم بالذكاء الاصطناعي.",
     "footer.disclaimer": "تحقق دائماً من الرسائل المشبوهة من خلال القنوات الرسمية.",
   },
 };
