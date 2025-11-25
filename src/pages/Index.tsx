@@ -3,6 +3,7 @@ import { Hero } from "@/components/Hero";
 import { MessageScanner } from "@/components/MessageScanner";
 import { Dashboard } from "@/components/Dashboard";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { FAQ } from "@/components/FAQ";
 import { Button } from "@/components/ui/button";
 import { ScanLine, LayoutDashboard } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -64,6 +65,9 @@ const Index = () => {
         )}
         {currentView === "dashboard" && <Dashboard />}
       </div>
+
+      {/* FAQ Section - Only show on hero view */}
+      {currentView === "hero" && <FAQ />}
 
       {/* Footer */}
       <footer className="border-t border-border mt-20 py-8">
