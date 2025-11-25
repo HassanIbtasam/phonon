@@ -66,6 +66,22 @@ const translations = {
     // Footer
     "footer.copyright": "© 2025 Phonon AI. Protecting users with advanced AI detection.",
     "footer.disclaimer": "Always verify suspicious messages through official channels.",
+    
+    // FAQ
+    "faq.title": "Frequently Asked Questions",
+    "faq.subtitle": "Everything you need to know about our scam detection service",
+    "faq.q1": "How does the AI scam detection work?",
+    "faq.a1": "Our advanced AI powered by Google Gemini analyzes message patterns, sender behavior, urgency tactics, and linguistic cues specific to the Middle East region. It compares messages against known scam patterns from Qatar, UAE, Saudi Arabia, and other regional countries to provide accurate risk assessments.",
+    "faq.q2": "Is my personal data stored or shared?",
+    "faq.a2": "Absolutely not. We prioritize your privacy. All message analysis happens in real-time on secure servers, and no personal information or message content is stored after analysis. Your data is immediately discarded once the scan is complete.",
+    "faq.q3": "What types of scams can it detect?",
+    "faq.a3": "Our AI detects a wide range of scams including banking fraud, government impersonation, delivery scams, telecom fraud, investment schemes, prize scams, and romance scams. It's specially trained to recognize both common and uncommon scam patterns targeting Middle Eastern users.",
+    "faq.q4": "Is this service free to use?",
+    "faq.a4": "Yes! Our scam detection service is completely free. We believe everyone deserves protection from fraud. Simply paste any suspicious message and get instant AI-powered analysis at no cost.",
+    "faq.q5": "How accurate is the detection?",
+    "faq.a5": "Our AI uses state-of-the-art language models trained on regional scam patterns with high accuracy. However, we always recommend using the detection as a helpful guide and verifying suspicious messages through official channels when possible.",
+    "faq.q6": "What languages are supported?",
+    "faq.a6": "We support both English and Arabic, with full understanding of regional dialects and terminology used across the Middle East. The AI can analyze messages in either language with equal effectiveness.",
   },
   ar: {
     // Navigation
@@ -124,6 +140,22 @@ const translations = {
     // Footer
     "footer.copyright": "© 2025 فونون AI. حماية المستخدمين بالكشف المتقدم بالذكاء الاصطناعي.",
     "footer.disclaimer": "تحقق دائماً من الرسائل المشبوهة من خلال القنوات الرسمية.",
+    
+    // FAQ
+    "faq.title": "الأسئلة الشائعة",
+    "faq.subtitle": "كل ما تحتاج معرفته عن خدمة كشف الاحتيال لدينا",
+    "faq.q1": "كيف يعمل الكشف عن الاحتيال بالذكاء الاصطناعي؟",
+    "faq.a1": "يقوم الذكاء الاصطناعي المتقدم لدينا المدعوم بجوجل جيميني بتحليل أنماط الرسائل، وسلوك المرسل، وتكتيكات الاستعجال، والإشارات اللغوية الخاصة بمنطقة الشرق الأوسط. يقارن الرسائل مع أنماط الاحتيال المعروفة من قطر والإمارات والسعودية ودول المنطقة الأخرى لتوفير تقييمات دقيقة للمخاطر.",
+    "faq.q2": "هل يتم تخزين أو مشاركة بياناتي الشخصية؟",
+    "faq.a2": "بالتأكيد لا. نحن نولي أهمية قصوى لخصوصيتك. يتم تحليل جميع الرسائل في الوقت الفعلي على خوادم آمنة، ولا يتم تخزين أي معلومات شخصية أو محتوى رسائل بعد التحليل. يتم التخلص من بياناتك فوراً بمجرد اكتمال الفحص.",
+    "faq.q3": "ما أنواع عمليات الاحتيال التي يمكنه كشفها؟",
+    "faq.a3": "يكتشف الذكاء الاصطناعي لدينا مجموعة واسعة من عمليات الاحتيال بما في ذلك الاحتيال المصرفي، وانتحال هوية الحكومة، وعمليات احتيال التوصيل، والاحتيال في الاتصالات، ومخططات الاستثمار، وعمليات احتيال الجوائز، وعمليات الاحتيال العاطفي. تم تدريبه خصيصاً للتعرف على أنماط الاحتيال الشائعة وغير الشائعة التي تستهدف مستخدمي الشرق الأوسط.",
+    "faq.q4": "هل هذه الخدمة مجانية؟",
+    "faq.a4": "نعم! خدمة كشف الاحتيال لدينا مجانية تماماً. نؤمن بأن الجميع يستحق الحماية من الاحتيال. ما عليك سوى لصق أي رسالة مشبوهة والحصول على تحليل فوري بالذكاء الاصطناعي دون أي تكلفة.",
+    "faq.q5": "ما مدى دقة الكشف؟",
+    "faq.a5": "يستخدم الذكاء الاصطناعي لدينا نماذج لغوية متطورة مدربة على أنماط الاحتيال الإقليمية بدقة عالية. ومع ذلك، نوصي دائماً باستخدام الكشف كدليل مفيد والتحقق من الرسائل المشبوهة من خلال القنوات الرسمية عند الإمكان.",
+    "faq.q6": "ما اللغات المدعومة؟",
+    "faq.a6": "ندعم كلاً من الإنجليزية والعربية، مع الفهم الكامل للهجات الإقليمية والمصطلحات المستخدمة في جميع أنحاء الشرق الأوسط. يمكن للذكاء الاصطناعي تحليل الرسائل بأي من اللغتين بنفس الفعالية.",
   },
 };
 
