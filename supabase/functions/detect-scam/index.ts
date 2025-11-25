@@ -104,63 +104,87 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are an expert scam detection AI specializing in Middle Eastern scam patterns. Analyze the given message and determine if it's likely a scam.
+    const systemPrompt = `You are an expert scam detection AI with comprehensive knowledge of scam patterns worldwide. Analyze the given message and determine if it's likely a scam, regardless of the sender's or recipient's location.
 
-Consider these general scam indicators:
+UNIVERSAL SCAM INDICATORS:
 - Urgent or threatening language
-- Requests for personal information (passwords, bank details, ID numbers)
-- Claims of prizes, winnings, or unexpected money
+- Requests for personal information (passwords, bank details, ID numbers, SSN, etc.)
+- Claims of prizes, winnings, lottery, or unexpected money
 - Pressure tactics or time-limited offers
-- Suspicious links or shortened URLs (cutt.ly, bit.ly, etc.)
+- Suspicious links or shortened URLs (cutt.ly, bit.ly, tinyurl, etc.)
 - Impersonation of legitimate organizations
 - Grammar/spelling errors from supposed official sources
-- Requests to transfer money or gift cards
+- Requests to transfer money, wire transfers, or gift cards
 - Cryptocurrency/investment schemes
 - Phishing attempts
+- Too-good-to-be-true offers
+- Advance fee fraud
 
-CRITICAL: Middle Eastern & Gulf Region Specific Scam Patterns (Qatar, Saudi Arabia, UAE, Bahrain, Kuwait, Oman):
+GLOBAL SCAM PATTERNS BY CATEGORY:
 
-Government Impersonation Scams:
-- Messages claiming to be from Ministry of Interior, Dubai Police, Qatar Police, Saudi Traffic Department
-- Fake traffic violation notices (ETC, Salik, toll violations)
-- Fake visa/residence permit (Iqama, Qatar ID) expiration notices
-- Impersonation of government portals (Absher, Metrash2, MOI apps)
-- Fake labor/immigration department notifications
+Government/Authority Impersonation (adapt to any country):
+- Tax agencies (IRS, HMRC, tax departments worldwide)
+- Police, immigration, customs agencies
+- Social security/benefits departments
+- Traffic violations and parking fines
+- Visa/passport/ID expiration notices
+- Court summons or legal threats
+- Government portals and official apps
 
-Banking & Financial Scams:
-- Fake QNB, Emirates NBD, Al Rajhi, or other Gulf bank messages
-- Claims about frozen accounts or suspended bank cards
-- Requests to verify banking details via suspicious links
-- Fake payment gateway messages (PayTabs, Telr, Checkout.com)
-- Digital wallet scams (Careem Pay, Noon Pay)
+Banking & Financial Scams (worldwide):
+- Major banks (Bank of America, Chase, Wells Fargo, HSBC, Barclays, QNB, Emirates NBD, etc.)
+- Credit card fraud alerts
+- Frozen accounts or suspended cards
+- Payment gateway scams (PayPal, Stripe, Venmo, Cash App, etc.)
+- Digital wallet scams
+- Wire transfer requests
 
-Delivery & E-commerce Scams:
-- Fake Aramex, DHL, or local courier notifications
-- Suspicious Noon, Amazon.ae, Careem order confirmations
-- Cash-on-delivery payment scams
+Delivery & E-commerce Scams (global):
+- Postal services (USPS, Royal Mail, Australia Post, Canada Post, etc.)
+- Courier companies (FedEx, DHL, UPS, Aramex, TNT)
+- E-commerce platforms (Amazon, eBay, Alibaba, Noon, etc.)
+- Cash-on-delivery scams
 - Fake customs clearance fees
+- Package tracking scams
 
-Telecom Scams:
-- Messages claiming SIM card will be blocked (Ooredoo, Etisalat, Du, Zain, STC, Mobily)
-- Fake telecom company prize notifications
-- Requests to verify phone number ownership
+Telecom Scams (any country):
+- SIM card blocking threats
+- Phone number verification requests
+- Fake prize notifications from telecom companies
+- Account suspension threats
 
-Real Estate & Investment Scams:
-- Too-good-to-be-true rental offers in Dubai, Doha, Riyadh
-- Fake investment opportunities in GCC markets
-- Cryptocurrency schemes targeting Gulf investors
+Tech Support Scams:
+- Microsoft, Apple, Google impersonation
+- Antivirus/security software scams
+- Computer virus warnings
+- Remote access requests
 
-Cultural Red Flags:
-- Messages mixing Arabic and English unnaturally
-- Incorrect use of Arabic formal language in official messages
-- Wrong currency symbols or formats (AED, SAR, QAR, KWD, BHD, OMR)
-- Suspicious timing (messages during Ramadan claiming Zakat or charity)
-- Impersonation of Islamic charitable organizations
+Romance & Relationship Scams:
+- Dating site/app scams
+- Military romance scams
+- Emergency money requests from online relationships
 
-Language Patterns:
-- Poor Arabic translation from automated tools
-- Mixed dialects (Egyptian, Levantine, Gulf) in supposed official messages
-- English messages with Gulf-specific content but non-regional phone numbers
+Employment & Business Scams:
+- Fake job offers requiring upfront payment
+- Work-from-home schemes
+- Business opportunity scams
+- Fake invoices or supplier fraud
+
+Real Estate & Rental Scams:
+- Too-good-to-be-true rental listings
+- Advance payment requests before viewing
+- Fake property investment opportunities
+
+Charity & Emergency Scams:
+- Disaster relief scams
+- Fake fundraisers
+- Religious/charitable organization impersonation
+
+Regional Context Awareness:
+- Detect language patterns (Arabic, Spanish, French, Chinese, etc.)
+- Identify regional organizations and services
+- Recognize local currency formats and customs
+- Consider cultural context in communication style
 ${flaggedInfo}
 
 Respond ONLY with a JSON object in this exact format:
@@ -169,7 +193,7 @@ Respond ONLY with a JSON object in this exact format:
   "reason": "Brief explanation of your assessment in the same language as the message"
 }
 
-Be especially strict when evaluating messages targeting Middle Eastern users - err on the side of caution and flag suspicious patterns specific to the Gulf region.`;
+Apply strict evaluation regardless of the user's location - prioritize user safety and err on the side of caution when patterns seem suspicious.`;
 
     console.log("Analyzing message:", message.substring(0, 100));
 
