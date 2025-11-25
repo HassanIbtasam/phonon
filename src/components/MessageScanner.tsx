@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Shield, AlertTriangle, CheckCircle2, Loader2, Flag, Phone, LogOut } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Shield, AlertTriangle, CheckCircle2, Loader2, Flag, Phone, LogOut, MessageSquare, Image } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { ScreenshotScanner } from "./ScreenshotScanner";
 import type { User } from "@supabase/supabase-js";
 
 interface ScanResult {
@@ -217,7 +219,20 @@ export const MessageScanner = () => {
         <p className="text-muted-foreground">{t("scanner.subtitle")}</p>
       </div>
 
-      <Card className="p-6 bg-gradient-card border-border shadow-card space-y-6">
+      <Tabs defaultValue="text" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsTrigger value="text" className="gap-2">
+            <MessageSquare className="w-4 h-4" />
+            {t("scanner.textTab")}
+          </TabsTrigger>
+          <TabsTrigger value="screenshot" className="gap-2">
+            <Image className="w-4 h-4" />
+            {t("scanner.screenshotTab")}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="text" className="space-y-8">
+          <Card className="p-6 bg-gradient-card border-border shadow-card space-y-6">
         <div className="space-y-3">
           <label className="text-sm font-medium">{t("scanner.label")}</label>
           <Textarea
@@ -307,6 +322,12 @@ export const MessageScanner = () => {
           </div>
         </Card>
       )}
+        </TabsContent>
+
+        <TabsContent value="screenshot">
+          <ScreenshotScanner />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
