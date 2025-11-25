@@ -1,4 +1,4 @@
-import { Zap, Lock, ScanLine } from "lucide-react";
+import { Zap, Lock, ScanLine, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import phononLogo from "@/assets/phonon-logo.jpeg";
@@ -49,6 +49,23 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
             <Zap className="w-5 h-5 mr-2" />
             {t("hero.cta")}
           </Button>
+        </div>
+
+        {/* Privacy Disclaimer */}
+        <div className="pt-8 animate-in fade-in duration-700 delay-400">
+          <div className="max-w-2xl mx-auto bg-card/70 backdrop-blur-sm border border-primary/30 rounded-xl p-6">
+            <div className="flex items-start gap-4">
+              <Shield className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
+              <div className="text-left">
+                <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                  {t("hero.privacy.title")}
+                </h4>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {t("hero.privacy.message")}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Feature highlights */}
