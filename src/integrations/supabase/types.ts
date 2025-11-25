@@ -21,6 +21,7 @@ export type Database = {
           message_context: string | null
           phone_number: string
           status: string
+          user_id: string | null
         }
         Insert: {
           flagged_at?: string
@@ -28,6 +29,7 @@ export type Database = {
           message_context?: string | null
           phone_number: string
           status: string
+          user_id?: string | null
         }
         Update: {
           flagged_at?: string
@@ -35,6 +37,7 @@ export type Database = {
           message_context?: string | null
           phone_number?: string
           status?: string
+          user_id?: string | null
         }
         Relationships: []
       }

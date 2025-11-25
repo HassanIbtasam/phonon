@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Shield, AlertTriangle, CheckCircle2, Loader2, Flag, Phone } from "lucide-react";
+import { Shield, AlertTriangle, CheckCircle2, Loader2, Flag, Phone, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 interface ScanResult {
   risk: "low" | "medium" | "high";
@@ -20,8 +22,22 @@ export const MessageScanner = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [isFlagging, setIsFlagging] = useState(false);
   const [result, setResult] = useState<ScanResult | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleScan = async () => {
     if (!message.trim()) {
@@ -71,6 +87,16 @@ export const MessageScanner = () => {
   };
 
   const handleFlag = async (status: 'scam' | 'safe') => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to flag numbers",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
+
     if (!phoneNumber.trim()) {
       toast({
         title: t("scanner.empty"),
@@ -82,12 +108,17 @@ export const MessageScanner = () => {
 
     setIsFlagging(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
       const { data, error } = await supabase.functions.invoke('detect-scam', {
         body: { 
           action: 'flag',
           phoneNumber: phoneNumber.trim(),
           status,
           message
+        },
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`
         }
       });
 
@@ -107,6 +138,14 @@ export const MessageScanner = () => {
     } finally {
       setIsFlagging(false);
     }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been signed out successfully",
+    });
   };
 
   const getRiskIcon = () => {
@@ -151,6 +190,27 @@ export const MessageScanner = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 space-y-8">
       <div className="text-center space-y-4">
+        <div className="flex justify-end mb-4">
+          {user ? (
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </Button>
+          ) : (
+            <Button
+              onClick={() => navigate("/auth")}
+              variant="outline"
+              size="sm"
+            >
+              Sign In
+            </Button>
+          )}
+        </div>
         <h2 className="font-display text-4xl font-bold">{t("scanner.title")}</h2>
         <p className="text-muted-foreground">{t("scanner.subtitle")}</p>
       </div>
