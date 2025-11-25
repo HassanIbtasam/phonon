@@ -20,12 +20,50 @@ serve(async (req) => {
 
     // Handle flagging action
     if (action === 'flag' && phoneNumber) {
+      // Require authentication for flagging
+      const authHeader = req.headers.get('Authorization');
+      if (!authHeader) {
+        return new Response(
+          JSON.stringify({ error: 'Authentication required for flagging' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+        );
+      }
+
+      // Validate phone number format (E.164)
+      const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+      if (!phoneRegex.test(phoneNumber)) {
+        return new Response(
+          JSON.stringify({ error: 'Invalid phone number format' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        );
+      }
+
+      // Validate status
+      if (!['scam', 'safe'].includes(status)) {
+        return new Response(
+          JSON.stringify({ error: 'Status must be "scam" or "safe"' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        );
+      }
+
+      // Get user ID from JWT
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+      
+      if (authError || !user) {
+        return new Response(
+          JSON.stringify({ error: 'Invalid authentication token' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+        );
+      }
+
       const { data, error } = await supabase
         .from('flagged_numbers')
         .upsert({ 
           phone_number: phoneNumber, 
           status: status,
-          message_context: message?.substring(0, 500)
+          message_context: message?.substring(0, 500),
+          user_id: user.id
         }, {
           onConflict: 'phone_number'
         });
