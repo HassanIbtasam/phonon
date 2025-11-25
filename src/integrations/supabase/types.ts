@@ -14,7 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      flagged_numbers: {
+        Row: {
+          flagged_at: string
+          id: string
+          message_context: string | null
+          phone_number: string
+          status: string
+        }
+        Insert: {
+          flagged_at?: string
+          id?: string
+          message_context?: string | null
+          phone_number: string
+          status: string
+        }
+        Update: {
+          flagged_at?: string
+          id?: string
+          message_context?: string | null
+          phone_number?: string
+          status?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
