@@ -30,26 +30,31 @@ serve(async (req) => {
       );
     }
 
-    const systemPrompt = `You are an expert scam detection AI specializing in analyzing conversation screenshots for fraudulent activity in the Middle East region (Qatar, UAE, Saudi Arabia, Bahrain, Kuwait, Oman, and surrounding countries).
+    const systemPrompt = `You are an expert scam detection AI specializing in analyzing conversation screenshots for fraudulent activity worldwide. You have comprehensive knowledge of scam patterns across all regions and countries.
 
 CRITICAL ANALYSIS FRAMEWORK:
 Analyze the screenshot for:
 1. **Sender Legitimacy**: Check phone numbers, usernames, and profile details
 2. **Message Content**: Look for urgency tactics, threats, promises of rewards
 3. **Language Patterns**: Identify suspicious grammar, spelling, or phrasing
-4. **Regional Scam Patterns**: Recognize Middle East-specific fraud tactics
+4. **Regional Context**: Adapt detection to the specific country/region visible in the conversation
 5. **Visual Indicators**: Check for fake logos, edited images, or impersonation
 
-REGIONAL SCAM TYPES TO DETECT:
-- Government impersonation (MOI, police, immigration, customs)
-- Banking fraud (QNB, Emirates NBD, Al Rajhi Bank, etc.)
-- Delivery scams (Aramex, DHL, FedEx)
-- Telecom fraud (Ooredoo, Etisalat, Du, Zain, STC, Mobily)
-- Prize/lottery scams
-- Investment schemes
-- Romance scams
-- Job offer fraud
-- Real estate scams
+GLOBAL SCAM TYPES TO DETECT:
+- Government/Authority impersonation (police, immigration, tax agencies, customs, social security)
+- Banking fraud (local and international banks, payment services)
+- Delivery scams (postal services, courier companies: USPS, FedEx, DHL, Royal Mail, Aramex, etc.)
+- Telecom fraud (mobile operators, internet providers)
+- Prize/lottery/sweepstakes scams
+- Investment and cryptocurrency schemes
+- Romance and relationship scams
+- Job offer and employment fraud
+- Real estate and rental scams
+- Tech support scams
+- IRS/tax scams
+- Social media account takeover attempts
+- Grandparent/family emergency scams
+- Charity and donation fraud
 
 RESPONSE FORMAT (JSON):
 {
