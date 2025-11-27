@@ -93,6 +93,8 @@ const translations = {
     // Live Detection
     "live.title": "Live Scam Detection",
     "live.subtitle": "Real-time protection during phone calls",
+    "live.privacyTitle": "Your Privacy is Protected",
+    "live.privacyMessage": "Your calls are NOT recorded or stored. Our AI analyzes audio in real-time only. The moment your call ends, all audio data is immediately and permanently discarded. No sensitive information, conversation content, or personal data is ever kept. Your privacy and security are our highest priorities.",
     "live.permissionRequired": "Microphone Permission Required",
     "live.permissionExplanation": "To monitor calls in real-time, we need access to your microphone. Put your phone on speaker and let our AI listen and protect you.",
     "live.grantPermission": "Grant Microphone Access",
@@ -215,6 +217,8 @@ const translations = {
     // Live Detection
     "live.title": "الكشف المباشر عن الاحتيال",
     "live.subtitle": "حماية في الوقت الفعلي أثناء المكالمات الهاتفية",
+    "live.privacyTitle": "خصوصيتك محمية",
+    "live.privacyMessage": "مكالماتك لا يتم تسجيلها أو تخزينها. يقوم الذكاء الاصطناعي لدينا بتحليل الصوت في الوقت الفعلي فقط. بمجرد انتهاء مكالمتك، يتم التخلص من جميع بيانات الصوت فوراً ونهائياً. لا يتم الاحتفاظ بأي معلومات حساسة أو محتوى محادثة أو بيانات شخصية على الإطلاق. خصوصيتك وأمانك هما أولويتنا القصوى.",
     "live.permissionRequired": "مطلوب إذن الميكروفون",
     "live.permissionExplanation": "لمراقبة المكالمات في الوقت الفعلي، نحتاج إلى الوصول إلى الميكروفون الخاص بك. ضع هاتفك على مكبر الصوت ودع الذكاء الاصطناعي يستمع ويحميك.",
     "live.grantPermission": "منح الوصول إلى الميكروفون",

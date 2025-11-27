@@ -206,6 +206,15 @@ export const LiveScamDetection = () => {
         </p>
       </div>
 
+      {/* Privacy Reassurance */}
+      <Alert className="mb-6 border-primary/20 bg-primary/5">
+        <Shield className="h-5 w-5 text-primary" />
+        <AlertDescription className="text-sm leading-relaxed">
+          <strong className="block mb-1">{t("live.privacyTitle")}</strong>
+          {t("live.privacyMessage")}
+        </AlertDescription>
+      </Alert>
+
       {/* Permission Request */}
       {!hasPermission && (
         <Card className="p-6 mb-6">
