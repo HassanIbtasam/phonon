@@ -21,8 +21,10 @@ export const LiveScamDetection = () => {
   const [currentRisk, setCurrentRisk] = useState<"low" | "medium" | "high">("low");
   const [hasPermission, setHasPermission] = useState(false);
   const [liveTranscript, setLiveTranscript] = useState("");
+  const [isTesting, setIsTesting] = useState(false);
   
   const recognitionRef = useRef<any>(null);
+  const testRecognitionRef = useRef<any>(null);
   
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -37,6 +39,9 @@ export const LiveScamDetection = () => {
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
+      }
+      if (testRecognitionRef.current) {
+        testRecognitionRef.current.stop();
       }
     };
   }, []);
@@ -204,6 +209,70 @@ export const LiveScamDetection = () => {
     }
   };
 
+  const startMicTest = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast({
+        title: t("live.recordingFailed"),
+        description: "Speech recognition not supported in this browser",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (event: any) => {
+      const last = event.results.length - 1;
+      const transcriptText = event.results[last][0].transcript;
+      setLiveTranscript(transcriptText);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Mic test error:", event.error);
+      toast({
+        title: t("live.testFailed"),
+        description: "Microphone test failed. Please check your permissions.",
+        variant: "destructive",
+      });
+      stopMicTest();
+    };
+
+    recognition.onend = () => {
+      if (isTesting) {
+        recognition.start();
+      }
+    };
+
+    testRecognitionRef.current = recognition;
+    
+    try {
+      recognition.start();
+      setIsTesting(true);
+      toast({
+        title: t("live.testStarted"),
+        description: t("live.testDesc"),
+      });
+    } catch (error) {
+      console.error("Failed to start mic test:", error);
+    }
+  };
+
+  const stopMicTest = () => {
+    if (testRecognitionRef.current && isTesting) {
+      testRecognitionRef.current.stop();
+      setIsTesting(false);
+      setLiveTranscript("");
+      toast({
+        title: t("live.testStopped"),
+        description: t("live.testStoppedDesc"),
+      });
+    }
+  };
+
 
   const getRiskIcon = () => {
     switch (currentRisk) {
@@ -262,6 +331,32 @@ export const LiveScamDetection = () => {
               </Button>
             </div>
           </div>
+        </Card>
+      )}
+
+      {/* Microphone Test */}
+      {hasPermission && !isRecording && (
+        <Card className="p-6 mb-6 border-primary/20">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Mic className="w-5 h-5 text-primary" />
+              <h3 className="font-semibold">{t("live.testMic")}</h3>
+            </div>
+            <Button
+              variant={isTesting ? "destructive" : "outline"}
+              onClick={isTesting ? stopMicTest : startMicTest}
+            >
+              {isTesting ? t("live.stopTest") : t("live.startTest")}
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {t("live.testDescription")}
+          </p>
+          {isTesting && liveTranscript && (
+            <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20">
+              <p className="text-sm text-foreground">"{liveTranscript}"</p>
+            </div>
+          )}
         </Card>
       )}
 

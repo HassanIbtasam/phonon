@@ -117,6 +117,15 @@ const translations = {
     "live.transcript": "Live Transcript & Analysis",
     "live.highRiskDetected": "⚠️ High Risk Detected!",
     "live.tip": "Tip: Put your phone on speaker mode and place it near your ear during the call. The AI will listen and alert you if it detects scam indicators.",
+    "live.testMic": "Test Your Microphone",
+    "live.startTest": "Start Test",
+    "live.stopTest": "Stop Test",
+    "live.testDescription": "Click the button above and speak to verify your microphone is working properly.",
+    "live.testStarted": "Microphone Test Started",
+    "live.testDesc": "Speak now to test your microphone",
+    "live.testStopped": "Test Stopped",
+    "live.testStoppedDesc": "Your microphone is working correctly",
+    "live.testFailed": "Test Failed",
     
     // FAQ
     "faq.title": "Frequently Asked Questions",
@@ -242,6 +251,15 @@ const translations = {
     "live.transcript": "النص المباشر والتحليل",
     "live.highRiskDetected": "⚠️ تم اكتشاف خطر عالٍ!",
     "live.tip": "نصيحة: ضع هاتفك على وضع مكبر الصوت وضعه بالقرب من أذنك أثناء المكالمة. سيستمع الذكاء الاصطناعي وينبهك إذا اكتشف مؤشرات احتيال.",
+    "live.testMic": "اختبر الميكروفون",
+    "live.startTest": "بدء الاختبار",
+    "live.stopTest": "إيقاف الاختبار",
+    "live.testDescription": "انقر على الزر أعلاه وتحدث للتحقق من أن الميكروفون يعمل بشكل صحيح.",
+    "live.testStarted": "بدأ اختبار الميكروفون",
+    "live.testDesc": "تحدث الآن لاختبار الميكروفون",
+    "live.testStopped": "توقف الاختبار",
+    "live.testStoppedDesc": "الميكروفون يعمل بشكل صحيح",
+    "live.testFailed": "فشل الاختبار",
     
     // FAQ
     "faq.title": "الأسئلة الشائعة",
