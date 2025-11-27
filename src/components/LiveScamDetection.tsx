@@ -22,9 +22,13 @@ export const LiveScamDetection = () => {
   const [hasPermission, setHasPermission] = useState(false);
   const [liveTranscript, setLiveTranscript] = useState("");
   const [isTesting, setIsTesting] = useState(false);
+  const [audioLevel, setAudioLevel] = useState(0);
   
   const recognitionRef = useRef<any>(null);
   const testRecognitionRef = useRef<any>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
   
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -42,6 +46,12 @@ export const LiveScamDetection = () => {
       }
       if (testRecognitionRef.current) {
         testRecognitionRef.current.stop();
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
       }
     };
   }, []);
@@ -209,6 +219,51 @@ export const LiveScamDetection = () => {
     }
   };
 
+  const startAudioLevelMonitoring = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const audioContext = new AudioContext();
+      const analyser = audioContext.createAnalyser();
+      const microphone = audioContext.createMediaStreamSource(stream);
+      
+      analyser.fftSize = 256;
+      microphone.connect(analyser);
+      
+      audioContextRef.current = audioContext;
+      analyserRef.current = analyser;
+      
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      
+      const updateLevel = () => {
+        if (!analyserRef.current) return;
+        
+        analyserRef.current.getByteFrequencyData(dataArray);
+        const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+        const normalizedLevel = Math.min(average / 128, 1); // Normalize to 0-1
+        setAudioLevel(normalizedLevel);
+        
+        animationFrameRef.current = requestAnimationFrame(updateLevel);
+      };
+      
+      updateLevel();
+    } catch (error) {
+      console.error("Failed to start audio monitoring:", error);
+    }
+  };
+
+  const stopAudioLevelMonitoring = () => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    analyserRef.current = null;
+    setAudioLevel(0);
+  };
+
   const startMicTest = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -252,6 +307,7 @@ export const LiveScamDetection = () => {
     try {
       recognition.start();
       setIsTesting(true);
+      startAudioLevelMonitoring();
       toast({
         title: t("live.testStarted"),
         description: t("live.testDesc"),
@@ -266,6 +322,7 @@ export const LiveScamDetection = () => {
       testRecognitionRef.current.stop();
       setIsTesting(false);
       setLiveTranscript("");
+      stopAudioLevelMonitoring();
       toast({
         title: t("live.testStopped"),
         description: t("live.testStoppedDesc"),
@@ -352,6 +409,39 @@ export const LiveScamDetection = () => {
           <p className="text-sm text-muted-foreground">
             {t("live.testDescription")}
           </p>
+          
+          {/* Audio Level Visualizer */}
+          {isTesting && (
+            <div className="mt-6 flex flex-col items-center gap-4">
+              <div className="relative flex items-center justify-center w-48 h-48">
+                {/* Outer reference circle */}
+                <div className="absolute w-32 h-32 rounded-full border-2 border-primary/20" />
+                
+                {/* Pulsing audio level circle */}
+                <div 
+                  className="absolute rounded-full bg-gradient-primary transition-all duration-100 ease-out"
+                  style={{
+                    width: `${Math.max(64 + audioLevel * 128, 64)}px`,
+                    height: `${Math.max(64 + audioLevel * 128, 64)}px`,
+                    opacity: 0.7 + audioLevel * 0.3,
+                  }}
+                />
+                
+                {/* Center microphone icon */}
+                <div className="relative z-10 flex items-center justify-center w-16 h-16 rounded-full bg-background border-2 border-primary">
+                  <Mic className="w-8 h-8 text-primary" />
+                </div>
+              </div>
+              
+              {/* Audio level text indicator */}
+              <div className="text-center">
+                <p className="text-sm font-medium text-primary">
+                  {audioLevel > 0.5 ? t("live.volumeLoud") : audioLevel > 0.2 ? t("live.volumeMedium") : t("live.volumeQuiet")}
+                </p>
+              </div>
+            </div>
+          )}
+          
           {isTesting && liveTranscript && (
             <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20">
               <p className="text-sm text-foreground">"{liveTranscript}"</p>

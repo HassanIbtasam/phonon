@@ -126,6 +126,9 @@ const translations = {
     "live.testStopped": "Test Stopped",
     "live.testStoppedDesc": "Your microphone is working correctly",
     "live.testFailed": "Test Failed",
+    "live.volumeQuiet": "Volume: Quiet",
+    "live.volumeMedium": "Volume: Medium",
+    "live.volumeLoud": "Volume: Loud",
     
     // FAQ
     "faq.title": "Frequently Asked Questions",
@@ -260,6 +263,9 @@ const translations = {
     "live.testStopped": "توقف الاختبار",
     "live.testStoppedDesc": "الميكروفون يعمل بشكل صحيح",
     "live.testFailed": "فشل الاختبار",
+    "live.volumeQuiet": "الصوت: هادئ",
+    "live.volumeMedium": "الصوت: متوسط",
+    "live.volumeLoud": "الصوت: عالٍ",
     
     // FAQ
     "faq.title": "الأسئلة الشائعة",
