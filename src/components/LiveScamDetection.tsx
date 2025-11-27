@@ -21,89 +21,136 @@ export const LiveScamDetection = () => {
   const [currentRisk, setCurrentRisk] = useState<"low" | "medium" | "high">("low");
   const [hasPermission, setHasPermission] = useState(false);
   
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
-  const streamRef = useRef<MediaStream | null>(null);
+  const recognitionRef = useRef<any>(null);
   
   const { toast } = useToast();
   const { t } = useLanguage();
 
   useEffect(() => {
+    // Check if browser supports speech recognition
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      setHasPermission(true);
+    }
+    
     return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
       }
     };
   }, []);
 
-  const requestPermission = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      setHasPermission(true);
-      stream.getTracks().forEach(track => track.stop()); // Stop after permission check
-      toast({
-        title: t("live.permissionGranted"),
-        description: t("live.permissionDesc"),
-      });
-    } catch (error) {
-      console.error("Permission denied:", error);
+  const requestPermission = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
       toast({
         title: t("live.permissionDenied"),
-        description: t("live.permissionDeniedDesc"),
+        description: "Your browser doesn't support speech recognition. Please use Chrome, Edge, or Safari.",
         variant: "destructive",
       });
+      return;
     }
+    
+    setHasPermission(true);
+    toast({
+      title: t("live.permissionGranted"),
+      description: t("live.permissionDesc"),
+    });
   };
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-        }
-      });
-      
-      streamRef.current = stream;
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-          processAudioChunk(event.data);
-        }
-      };
-
-      mediaRecorder.start(3000); // Capture chunks every 3 seconds
-      setIsRecording(true);
-      setTranscript([]);
-      
-      toast({
-        title: t("live.recordingStarted"),
-        description: t("live.recordingDesc"),
-      });
-    } catch (error) {
-      console.error("Failed to start recording:", error);
+  const startRecording = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
       toast({
         title: t("live.recordingFailed"),
-        description: t("live.recordingFailedDesc"),
+        description: "Speech recognition not supported in this browser",
         variant: "destructive",
       });
+      return;
     }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = async (event: any) => {
+      const last = event.results.length - 1;
+      const transcriptText = event.results[last][0].transcript;
+      
+      // Only process final results
+      if (event.results[last].isFinal) {
+        setIsAnalyzing(true);
+        
+        try {
+          // Analyze with scam detection
+          const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
+            'detect-scam',
+            { body: { message: transcriptText } }
+          );
+
+          if (analysisError) throw analysisError;
+
+          const newSegment: TranscriptSegment = {
+            text: transcriptText,
+            timestamp: new Date(),
+            riskLevel: analysisData.risk,
+            analysis: analysisData.reason,
+          };
+
+          setTranscript(prev => [...prev, newSegment]);
+          
+          // Update overall risk level
+          if (analysisData.risk === "high") {
+            setCurrentRisk("high");
+            toast({
+              title: t("live.highRiskDetected"),
+              description: analysisData.reason,
+              variant: "destructive",
+            });
+          } else if (analysisData.risk === "medium" && currentRisk !== "high") {
+            setCurrentRisk("medium");
+          }
+        } catch (error) {
+          console.error("Failed to analyze speech:", error);
+        } finally {
+          setIsAnalyzing(false);
+        }
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error:", event.error);
+      if (event.error === 'not-allowed') {
+        toast({
+          title: t("live.permissionDenied"),
+          description: t("live.permissionDeniedDesc"),
+          variant: "destructive",
+        });
+      }
+    };
+
+    recognition.onend = () => {
+      if (isRecording) {
+        recognition.start(); // Restart if still recording
+      }
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsRecording(true);
+    setTranscript([]);
+    
+    toast({
+      title: t("live.recordingStarted"),
+      description: t("live.recordingDesc"),
+    });
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
+    if (recognitionRef.current && isRecording) {
+      recognitionRef.current.stop();
       setIsRecording(false);
-      
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-        streamRef.current = null;
-      }
 
       toast({
         title: t("live.recordingStopped"),
@@ -112,66 +159,6 @@ export const LiveScamDetection = () => {
     }
   };
 
-  const processAudioChunk = async (audioBlob: Blob) => {
-    setIsAnalyzing(true);
-    
-    try {
-      // Convert blob to base64
-      const reader = new FileReader();
-      reader.readAsDataURL(audioBlob);
-      
-      reader.onloadend = async () => {
-        const base64Audio = (reader.result as string).split(',')[1];
-        
-        // Send to transcription edge function
-        const { data: transcriptData, error: transcriptError } = await supabase.functions.invoke(
-          'transcribe-audio',
-          { body: { audio: base64Audio } }
-        );
-
-        if (transcriptError) throw transcriptError;
-        
-        if (transcriptData?.text && transcriptData.text.trim()) {
-          // Analyze the transcribed text for scams
-          const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
-            'detect-scam',
-            { body: { message: transcriptData.text } }
-          );
-
-          if (analysisError) throw analysisError;
-
-          const newSegment: TranscriptSegment = {
-            text: transcriptData.text,
-            timestamp: new Date(),
-            riskLevel: analysisData.risk,
-            analysis: analysisData.reason,
-          };
-
-          setTranscript(prev => [...prev, newSegment]);
-          
-          // Update overall risk level to the highest risk detected
-          if (analysisData.risk === "high") {
-            setCurrentRisk("high");
-          } else if (analysisData.risk === "medium" && currentRisk !== "high") {
-            setCurrentRisk("medium");
-          }
-
-          // Alert user if high risk detected
-          if (analysisData.risk === "high") {
-            toast({
-              title: t("live.highRiskDetected"),
-              description: analysisData.reason,
-              variant: "destructive",
-            });
-          }
-        }
-      };
-    } catch (error) {
-      console.error("Failed to process audio:", error);
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
 
   const getRiskIcon = () => {
     switch (currentRisk) {
