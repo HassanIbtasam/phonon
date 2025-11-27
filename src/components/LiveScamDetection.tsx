@@ -41,7 +41,7 @@ export const LiveScamDetection = () => {
     };
   }, []);
 
-  const requestPermission = () => {
+  const requestPermission = async () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       toast({
@@ -52,11 +52,22 @@ export const LiveScamDetection = () => {
       return;
     }
     
-    setHasPermission(true);
-    toast({
-      title: t("live.permissionGranted"),
-      description: t("live.permissionDesc"),
-    });
+    try {
+      // Request microphone permission
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      setHasPermission(true);
+      toast({
+        title: t("live.permissionGranted"),
+        description: t("live.permissionDesc"),
+      });
+    } catch (error) {
+      console.error("Microphone permission denied:", error);
+      toast({
+        title: t("live.permissionDenied"),
+        description: t("live.permissionDeniedDesc"),
+        variant: "destructive",
+      });
+    }
   };
 
   const startRecording = () => {
@@ -74,10 +85,14 @@ export const LiveScamDetection = () => {
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = 'en-US';
+    
+    console.log("Starting speech recognition...");
 
     recognition.onresult = async (event: any) => {
+      console.log("Speech recognition result received");
       const last = event.results.length - 1;
       const transcriptText = event.results[last][0].transcript;
+      console.log("Transcript:", transcriptText, "Final:", event.results[last].isFinal);
       
       // Show live interim results
       if (!event.results[last].isFinal) {
@@ -129,13 +144,23 @@ export const LiveScamDetection = () => {
 
     recognition.onerror = (event: any) => {
       console.error("Speech recognition error:", event.error);
-      if (event.error === 'not-allowed') {
+      if (event.error === 'not-allowed' || event.error === 'not-allowed-permission') {
         toast({
           title: t("live.permissionDenied"),
           description: t("live.permissionDeniedDesc"),
           variant: "destructive",
         });
+      } else {
+        toast({
+          title: "Recognition Error",
+          description: `Speech recognition failed: ${event.error}`,
+          variant: "destructive",
+        });
       }
+    };
+    
+    recognition.onstart = () => {
+      console.log("Speech recognition started successfully");
     };
 
     recognition.onend = () => {
@@ -145,15 +170,25 @@ export const LiveScamDetection = () => {
     };
 
     recognitionRef.current = recognition;
-    recognition.start();
-    setIsRecording(true);
-    setTranscript([]);
-    setLiveTranscript("");
     
-    toast({
-      title: t("live.recordingStarted"),
-      description: t("live.recordingDesc"),
-    });
+    try {
+      recognition.start();
+      setIsRecording(true);
+      setTranscript([]);
+      setLiveTranscript("");
+      
+      toast({
+        title: t("live.recordingStarted"),
+        description: t("live.recordingDesc"),
+      });
+    } catch (error) {
+      console.error("Failed to start recognition:", error);
+      toast({
+        title: t("live.recordingFailed"),
+        description: "Could not start speech recognition. Please check your microphone permissions.",
+        variant: "destructive",
+      });
+    }
   };
 
   const stopRecording = () => {
