@@ -1,15 +1,16 @@
 import { useState, useRef } from "react";
 import { Hero } from "@/components/Hero";
 import { MessageScanner } from "@/components/MessageScanner";
+import { LiveScamDetection } from "@/components/LiveScamDetection";
 import { Dashboard } from "@/components/Dashboard";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { FAQ } from "@/components/FAQ";
 import { Button } from "@/components/ui/button";
-import { ScanLine, LayoutDashboard } from "lucide-react";
+import { ScanLine, LayoutDashboard, Radio } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import phononLogo from "@/assets/phonon-logo.jpeg";
 
-type View = "hero" | "scanner" | "dashboard";
+type View = "hero" | "scanner" | "live" | "dashboard";
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<View>("hero");
@@ -44,6 +45,14 @@ const Index = () => {
               {t("nav.scanner")}
             </Button>
             <Button
+              variant={currentView === "live" ? "default" : "ghost"}
+              onClick={() => setCurrentView("live")}
+              className={currentView === "live" ? "bg-gradient-primary" : ""}
+            >
+              <Radio className="w-4 h-4 mr-2" />
+              Live
+            </Button>
+            <Button
               variant={currentView === "dashboard" ? "default" : "ghost"}
               onClick={() => setCurrentView("dashboard")}
               className={currentView === "dashboard" ? "bg-gradient-primary" : ""}
@@ -63,6 +72,7 @@ const Index = () => {
             <MessageScanner />
           </div>
         )}
+        {currentView === "live" && <LiveScamDetection />}
         {currentView === "dashboard" && <Dashboard />}
       </div>
 
