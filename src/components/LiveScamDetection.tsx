@@ -105,20 +105,24 @@ export const LiveScamDetection = () => {
 
     recognition.onresult = async (event: any) => {
       console.log("Speech recognition result received");
+      console.log("Event results length:", event.results.length);
       const last = event.results.length - 1;
       const transcriptText = event.results[last][0].transcript;
-      console.log("Transcript:", transcriptText, "Final:", event.results[last].isFinal);
+      const isFinal = event.results[last].isFinal;
+      console.log("Transcript:", transcriptText, "Final:", isFinal, "Confidence:", event.results[last][0].confidence);
       
       // Show live interim results
-      if (!event.results[last].isFinal) {
+      if (!isFinal) {
+        console.log("Setting live transcript:", transcriptText);
         setLiveTranscript(transcriptText);
         return;
       }
       
       // Clear live transcript and process final results
       setLiveTranscript("");
-      if (event.results[last].isFinal) {
+      if (isFinal) {
         setIsAnalyzing(true);
+        console.log("Processing final transcript for analysis:", transcriptText);
         
         try {
           // Analyze with scam detection
@@ -179,8 +183,14 @@ export const LiveScamDetection = () => {
     };
 
     recognition.onend = () => {
+      console.log("Speech recognition ended, isRecording:", isRecording);
       if (isRecording) {
-        recognition.start(); // Restart if still recording
+        console.log("Restarting recognition...");
+        try {
+          recognition.start();
+        } catch (error) {
+          console.error("Failed to restart recognition:", error);
+        }
       }
     };
 
@@ -495,7 +505,7 @@ export const LiveScamDetection = () => {
       )}
 
       {/* Live Speech Display */}
-      {isRecording && liveTranscript && (
+      {isRecording && (
         <Card className="p-6 mb-6 border-primary/30 bg-primary/5">
           <div className="flex items-center gap-2 mb-3">
             <Mic className="w-5 h-5 text-primary animate-pulse" />
@@ -503,9 +513,15 @@ export const LiveScamDetection = () => {
               {t("live.listening")}
             </span>
           </div>
-          <p className="text-lg text-foreground italic">
-            "{liveTranscript}"
-          </p>
+          {liveTranscript ? (
+            <p className="text-lg text-foreground italic">
+              "{liveTranscript}"
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground italic">
+              {t("live.waitingForSpeech")}
+            </p>
+          )}
         </Card>
       )}
 

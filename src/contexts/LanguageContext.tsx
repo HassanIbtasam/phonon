@@ -129,6 +129,7 @@ const translations = {
     "live.volumeQuiet": "Volume: Quiet",
     "live.volumeMedium": "Volume: Medium",
     "live.volumeLoud": "Volume: Loud",
+    "live.waitingForSpeech": "Waiting for speech... Speak now to see transcription",
     
     // FAQ
     "faq.title": "Frequently Asked Questions",
@@ -266,6 +267,7 @@ const translations = {
     "live.volumeQuiet": "الصوت: هادئ",
     "live.volumeMedium": "الصوت: متوسط",
     "live.volumeLoud": "الصوت: عالٍ",
+    "live.waitingForSpeech": "في انتظار الكلام... تحدث الآن لرؤية النسخ",
     
     // FAQ
     "faq.title": "الأسئلة الشائعة",
