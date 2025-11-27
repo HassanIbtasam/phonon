@@ -20,6 +20,7 @@ export const LiveScamDetection = () => {
   const [transcript, setTranscript] = useState<TranscriptSegment[]>([]);
   const [currentRisk, setCurrentRisk] = useState<"low" | "medium" | "high">("low");
   const [hasPermission, setHasPermission] = useState(false);
+  const [liveTranscript, setLiveTranscript] = useState("");
   
   const recognitionRef = useRef<any>(null);
   
@@ -78,7 +79,14 @@ export const LiveScamDetection = () => {
       const last = event.results.length - 1;
       const transcriptText = event.results[last][0].transcript;
       
-      // Only process final results
+      // Show live interim results
+      if (!event.results[last].isFinal) {
+        setLiveTranscript(transcriptText);
+        return;
+      }
+      
+      // Clear live transcript and process final results
+      setLiveTranscript("");
       if (event.results[last].isFinal) {
         setIsAnalyzing(true);
         
@@ -140,6 +148,7 @@ export const LiveScamDetection = () => {
     recognition.start();
     setIsRecording(true);
     setTranscript([]);
+    setLiveTranscript("");
     
     toast({
       title: t("live.recordingStarted"),
@@ -151,6 +160,7 @@ export const LiveScamDetection = () => {
     if (recognitionRef.current && isRecording) {
       recognitionRef.current.stop();
       setIsRecording(false);
+      setLiveTranscript("");
 
       toast({
         title: t("live.recordingStopped"),
@@ -261,6 +271,21 @@ export const LiveScamDetection = () => {
               </div>
             )}
           </div>
+        </Card>
+      )}
+
+      {/* Live Speech Display */}
+      {isRecording && liveTranscript && (
+        <Card className="p-6 mb-6 border-primary/30 bg-primary/5">
+          <div className="flex items-center gap-2 mb-3">
+            <Mic className="w-5 h-5 text-primary animate-pulse" />
+            <span className="text-sm font-medium text-primary">
+              {t("live.listening")}
+            </span>
+          </div>
+          <p className="text-lg text-foreground italic">
+            "{liveTranscript}"
+          </p>
         </Card>
       )}
 
