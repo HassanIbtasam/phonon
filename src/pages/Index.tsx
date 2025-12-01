@@ -7,8 +7,9 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { FAQ } from "@/components/FAQ";
 import { ScamStats } from "@/components/ScamStats";
 import { Button } from "@/components/ui/button";
-import { ScanLine, LayoutDashboard, Radio } from "lucide-react";
+import { ScanLine, LayoutDashboard, Radio, Link as LinkIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useNavigate } from "react-router-dom";
 import phononLogo from "@/assets/phonon-logo.jpeg";
 
 type View = "hero" | "scanner" | "live" | "dashboard";
@@ -17,6 +18,7 @@ const Index = () => {
   const [currentView, setCurrentView] = useState<View>("hero");
   const scannerRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   const handleGetStarted = () => {
     setCurrentView("scanner");
@@ -63,6 +65,13 @@ const Index = () => {
             >
               <LayoutDashboard className="w-4 h-4 mr-2" />
               {t("nav.dashboard")}
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/link-analyzer")}
+            >
+              <LinkIcon className="w-4 h-4 mr-2" />
+              Link Analyzer
             </Button>
           </div>
         </div>
