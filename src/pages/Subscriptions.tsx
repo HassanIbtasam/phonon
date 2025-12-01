@@ -67,8 +67,8 @@ const Subscriptions = () => {
     } catch (error) {
       console.error("Error loading subscriptions:", error);
       toast({
-        title: t("error.title") || "Error",
-        description: t("error.loadingPlans") || "Failed to load subscription plans",
+        title: "Error",
+        description: "Failed to load subscription plans. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -96,8 +96,8 @@ const Subscriptions = () => {
     
     if (!user) {
       toast({
-        title: t("auth.required") || "Authentication Required",
-        description: t("auth.signInToSubscribe") || "Please sign in to subscribe to a plan",
+        title: "Authentication Required",
+        description: "Please sign in to subscribe to a plan",
       });
       navigate("/auth");
       return;
@@ -105,8 +105,8 @@ const Subscriptions = () => {
 
     // For now, just show a success message
     toast({
-      title: t("subscription.selected") || "Plan Selected",
-      description: `You've selected the ${tier} plan. Payment integration coming soon!`,
+      title: "Plan Selected",
+      description: `You have selected the ${tier} plan. Payment integration coming soon!`,
     });
   };
 
@@ -126,59 +126,63 @@ const Subscriptions = () => {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/50">
+        <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
           <button 
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+            className="flex items-center gap-3 hover:opacity-80 transition-all cursor-pointer group"
           >
-            <img src={phononLogo} alt="Phonon Logo" className="w-8 h-8 object-contain" />
-            <span className="font-display font-bold text-xl">{t("nav.title")}</span>
+            <img src={phononLogo} alt="Phonon AI" className="w-10 h-10 object-contain group-hover:scale-110 transition-transform" />
+            <span className="font-display font-bold text-xl text-foreground">Phonon AI</span>
           </button>
           
           <Button
             variant="ghost"
             onClick={() => navigate("/")}
+            size="lg"
+            className="font-medium"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            {t("nav.back") || "Back"}
+            Back to Home
           </Button>
         </div>
       </nav>
 
       {/* Content */}
-      <div className="pt-32 pb-20 px-4">
+      <div className="pt-36 pb-24 px-6">
         <div className="max-w-7xl mx-auto">
           {/* Hero Section */}
-          <div className="text-center mb-12 animate-in fade-in slide-in-from-top duration-700">
-            <h1 className="font-display text-4xl md:text-6xl font-bold mb-4">
+          <div className="text-center mb-16 animate-in fade-in slide-in-from-top duration-700">
+            <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 leading-tight">
               <span className="bg-gradient-primary bg-clip-text text-transparent">
-                {t("subscription.title") || "Choose Your Protection Plan"}
+                Choose Your Plan
               </span>
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              {t("subscription.subtitle") || "Select the perfect plan to protect yourself from scams"}
+            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Advanced AI-powered scam protection for everyone
             </p>
           </div>
 
           {/* Billing Toggle */}
-          <div className="flex justify-center mb-12 animate-in fade-in duration-700 delay-100">
-            <div className="bg-card border border-border rounded-full p-1 flex gap-1">
+          <div className="flex justify-center mb-16 animate-in fade-in duration-700 delay-100">
+            <div className="bg-card/80 backdrop-blur-sm border-2 border-border/50 rounded-full p-1.5 flex gap-2 shadow-lg">
               <Button
                 variant={billingPeriod === "monthly" ? "default" : "ghost"}
                 onClick={() => setBillingPeriod("monthly")}
-                className={billingPeriod === "monthly" ? "bg-gradient-primary rounded-full" : "rounded-full"}
+                size="lg"
+                className={billingPeriod === "monthly" ? "bg-gradient-primary rounded-full px-8 font-semibold" : "rounded-full px-8 font-medium"}
               >
-                {t("subscription.monthly") || "Monthly"}
+                Monthly
               </Button>
               <Button
                 variant={billingPeriod === "yearly" ? "default" : "ghost"}
                 onClick={() => setBillingPeriod("yearly")}
-                className={billingPeriod === "yearly" ? "bg-gradient-primary rounded-full" : "rounded-full"}
+                size="lg"
+                className={billingPeriod === "yearly" ? "bg-gradient-primary rounded-full px-8 font-semibold" : "rounded-full px-8 font-medium"}
               >
-                {t("subscription.yearly") || "Yearly"}
-                <Badge className="ml-2 bg-success text-success-foreground">
-                  {t("subscription.save20") || "Save 20%"}
+                Yearly
+                <Badge className="ml-2 bg-success text-success-foreground font-semibold px-2">
+                  Save 20%
                 </Badge>
               </Button>
             </div>
@@ -208,8 +212,8 @@ const Subscriptions = () => {
                   )}
                   
                   {isCurrentPlan && (
-                    <Badge className="absolute -top-3 right-4 bg-success border-0 px-3 py-1">
-                      {t("subscription.current") || "Current Plan"}
+                    <Badge className="absolute -top-3 right-4 bg-success border-0 px-3 py-1 font-semibold">
+                      Current Plan
                     </Badge>
                   )}
 
@@ -274,16 +278,16 @@ const Subscriptions = () => {
                     size="lg"
                     className={
                       isPro
-                        ? "w-full bg-gradient-primary hover:shadow-glow transition-all duration-300"
-                        : "w-full transition-all duration-300"
+                        ? "w-full bg-gradient-primary hover:shadow-glow transition-all duration-300 font-semibold text-base"
+                        : "w-full transition-all duration-300 font-semibold text-base"
                     }
                     variant={isCurrentPlan ? "outline" : "default"}
                   >
                     {isCurrentPlan
-                      ? t("subscription.currentPlan") || "Current Plan"
+                      ? "Current Plan"
                       : plan.tier.toLowerCase() === "basic"
-                      ? t("subscription.getStarted") || "Get Started"
-                      : t("subscription.upgrade") || "Upgrade Now"}
+                      ? "Get Started Free"
+                      : "Subscribe Now"}
                   </Button>
                 </Card>
               );
@@ -291,16 +295,17 @@ const Subscriptions = () => {
           </div>
 
           {/* Bottom CTA */}
-          <div className="mt-16 text-center animate-in fade-in duration-700 delay-300">
-            <div className="max-w-2xl mx-auto bg-card/50 backdrop-blur-sm border border-primary/30 rounded-xl p-8">
-              <h3 className="font-display text-2xl font-bold mb-4">
-                {t("subscription.enterprise.title") || "Need More?"}
+          <div className="mt-20 text-center animate-in fade-in duration-700 delay-300">
+            <div className="max-w-3xl mx-auto bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-lg border-2 border-primary/20 rounded-2xl p-12 shadow-xl">
+              <Crown className="w-16 h-16 mx-auto mb-6 text-primary" />
+              <h3 className="font-display text-3xl md:text-4xl font-bold mb-4 text-foreground">
+                Need a Custom Solution?
               </h3>
-              <p className="text-muted-foreground mb-6">
-                {t("subscription.enterprise.desc") || "Contact us for custom enterprise solutions with dedicated support and unlimited features."}
+              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+                Contact our team for enterprise-grade protection with custom features, dedicated support, and volume pricing tailored to your organization.
               </p>
-              <Button className="bg-gradient-primary hover:shadow-glow">
-                {t("subscription.enterprise.cta") || "Contact Sales"}
+              <Button size="lg" className="bg-gradient-primary hover:shadow-glow font-semibold text-base px-8">
+                Contact Sales Team
               </Button>
             </div>
           </div>
