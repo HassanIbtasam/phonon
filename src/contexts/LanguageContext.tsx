@@ -283,6 +283,8 @@ const translations = {
     "pricing.planSelectedDesc": "You have selected the {tier} plan. Payment integration coming soon!",
     "pricing.error": "Error",
     "pricing.errorDesc": "Failed to load subscription plans. Please try again.",
+    "pricing.unlimited": "Unlimited",
+    "pricing.loading": "Loading...",
   },
   ar: {
     // Navigation
@@ -558,6 +560,8 @@ const translations = {
     "pricing.planSelectedDesc": "لقد اخترت خطة {tier}. تكامل الدفع قريباً!",
     "pricing.error": "خطأ",
     "pricing.errorDesc": "فشل تحميل خطط الاشتراك. يرجى المحاولة مرة أخرى.",
+    "pricing.unlimited": "غير محدود",
+    "pricing.loading": "جارٍ التحميل...",
   },
 };
 
