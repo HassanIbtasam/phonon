@@ -112,14 +112,30 @@ const Subscriptions = () => {
   };
 
   const formatLimit = (limit: number | null) => {
-    if (limit === null) return "Unlimited";
+    if (limit === null) return t("pricing.unlimited");
     return limit.toLocaleString();
+  };
+
+  const translateFeature = (feature: string): string => {
+    const featureMap: Record<string, string> = {
+      "Community support": t("pricing.communitySupport"),
+      "Unlimited text analysis": t("pricing.unlimitedText"),
+      "Advanced speech recognition": t("pricing.advancedSpeech"),
+      "Priority processing": t("pricing.priorityProcessing"),
+      "24/7 email support": t("pricing.emailSupport"),
+      "All PRO features": t("pricing.allProFeatures"),
+      "API access": t("pricing.apiAccess"),
+      "Priority on-spot response": t("pricing.priorityResponse"),
+      "Usage analytics dashboard": t("pricing.analytics"),
+      "Dedicated account manager": t("pricing.accountManager"),
+    };
+    return featureMap[feature] || feature;
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-primary">Loading...</div>
+        <div className="animate-pulse text-primary">{t("pricing.loading")}</div>
       </div>
     );
   }
@@ -270,7 +286,7 @@ const Subscriptions = () => {
                     {Array.isArray(plan.features) && (plan.features as string[]).map((feature, i) => (
                       <div key={i} className="flex items-start gap-3">
                         <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-foreground">{feature}</span>
+                        <span className="text-sm text-foreground">{translateFeature(feature)}</span>
                       </div>
                     ))}
                   </div>
