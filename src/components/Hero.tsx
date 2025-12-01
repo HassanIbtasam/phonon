@@ -2,6 +2,7 @@ import { Zap, Lock, ScanLine, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import phononLogo from "@/assets/phonon-logo.jpeg";
+import { ScamStats } from "@/components/ScamStats";
 
 interface HeroProps {
   onGetStarted: () => void;
@@ -89,6 +90,9 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
           </div>
         </div>
       </div>
+
+      {/* Scam Statistics Section */}
+      <ScamStats />
     </div>
   );
 };

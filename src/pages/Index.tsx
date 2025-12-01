@@ -29,10 +29,13 @@ const Index = () => {
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <button 
+            onClick={() => setCurrentView("hero")}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+          >
             <img src={phononLogo} alt="Phonon Logo" className="w-8 h-8 object-contain" />
             <span className="font-display font-bold text-xl">{t("nav.title")}</span>
-          </div>
+          </button>
           
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
