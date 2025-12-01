@@ -79,15 +79,15 @@ const Subscriptions = () => {
   const getPlanIcon = (tier: string) => {
     switch (tier.toLowerCase()) {
       case "free":
-        return <Gift className="w-6 h-6" />;
+        return <Gift className="w-8 h-8" />;
       case "basic":
-        return <Zap className="w-6 h-6" />;
+        return <Zap className="w-8 h-8" />;
       case "pro":
-        return <Rocket className="w-6 h-6" />;
+        return <Rocket className="w-8 h-8" />;
       case "enterprise":
-        return <Crown className="w-6 h-6" />;
+        return <Crown className="w-8 h-8" />;
       default:
-        return <Zap className="w-6 h-6" />;
+        return <Zap className="w-8 h-8" />;
     }
   };
 
@@ -185,7 +185,7 @@ const Subscriptions = () => {
           </div>
 
           {/* Plans Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-in fade-in duration-700 delay-200">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto animate-in fade-in duration-700 delay-200">
             {plans.map((plan, index) => {
               const isCurrentPlan = userSubscription?.plan_id === plan.id;
               const isPro = plan.tier.toLowerCase() === "pro";
@@ -194,72 +194,75 @@ const Subscriptions = () => {
               return (
                 <Card
                   key={plan.id}
-                  className={`relative p-6 flex flex-col hover-scale transition-all duration-300 ${
+                  className={`relative p-8 flex flex-col hover-scale transition-all duration-300 ${
                     isPro
-                      ? "border-primary shadow-glow bg-gradient-card"
-                      : "border-border hover:border-primary/50"
+                      ? "border-2 border-primary shadow-glow bg-gradient-to-b from-card to-card/50 scale-105"
+                      : "border border-border/50 hover:border-primary/30 bg-card"
                   }`}
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   {isPro && (
-                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-primary border-0">
+                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-primary border-0 px-4 py-1">
                       {t("subscription.popular") || "Most Popular"}
                     </Badge>
                   )}
                   
                   {isCurrentPlan && (
-                    <Badge className="absolute -top-3 right-4 bg-success border-0">
+                    <Badge className="absolute -top-3 right-4 bg-success border-0 px-3 py-1">
                       {t("subscription.current") || "Current Plan"}
                     </Badge>
                   )}
 
                   {/* Plan Header */}
-                  <div className="text-center mb-6">
-                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary mb-4">
+                  <div className="text-center mb-8">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 text-primary mb-6 transition-transform hover:scale-110">
                       {getPlanIcon(plan.tier)}
                     </div>
-                    <h3 className="font-display text-2xl font-bold mb-2">{plan.name}</h3>
-                    <div className="flex items-baseline justify-center gap-1">
-                      <span className="text-4xl font-bold">${price}</span>
-                      <span className="text-muted-foreground">
+                    <h3 className="font-display text-2xl font-bold mb-4 text-foreground">{plan.name}</h3>
+                    <div className="flex items-baseline justify-center gap-1 mb-2">
+                      <span className="text-5xl font-bold text-foreground">${price}</span>
+                      <span className="text-lg text-muted-foreground">
                         /{billingPeriod === "monthly" ? t("subscription.mo") || "mo" : t("subscription.yr") || "yr"}
                       </span>
                     </div>
                   </div>
 
+                  {/* Divider */}
+                  <div className="w-full h-px bg-border/50 mb-6" />
+
                   {/* Features List */}
-                  <div className="flex-1 space-y-3 mb-6">
-                    <div className="flex items-start gap-2">
+                  <div className="flex-1 space-y-4 mb-8">
+                    <div className="flex items-start gap-3">
                       <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        <strong>{formatLimit(plan.text_analysis_limit)}</strong> text scans/month
+                      <span className="text-sm text-foreground">
+                        <strong className="font-semibold">{formatLimit(plan.text_analysis_limit)}</strong> text scans
                       </span>
                     </div>
-                    <div className="flex items-start gap-2">
+                    <div className="flex items-start gap-3">
                       <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        <strong>{formatLimit(plan.screenshot_analysis_limit)}</strong> screenshot scans/month
+                      <span className="text-sm text-foreground">
+                        <strong className="font-semibold">{formatLimit(plan.screenshot_analysis_limit)}</strong> screenshot scans
                       </span>
                     </div>
-                    <div className="flex items-start gap-2">
+                    <div className="flex items-start gap-3">
                       <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        <strong>{formatLimit(plan.link_analysis_limit)}</strong> link analyses/month
+                      <span className="text-sm text-foreground">
+                        <strong className="font-semibold">{formatLimit(plan.link_analysis_limit)}</strong> link analyses
                       </span>
                     </div>
                     {plan.live_call_limit !== null && (
-                      <div className="flex items-start gap-2">
+                      <div className="flex items-start gap-3">
                         <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-sm">
-                          <strong>{formatLimit(plan.live_call_limit)}</strong> live call minutes/month
+                        <span className="text-sm text-foreground">
+                          <strong className="font-semibold">{formatLimit(plan.live_call_limit)}</strong> live call minutes
                         </span>
                       </div>
                     )}
                     
                     {Array.isArray(plan.features) && (plan.features as string[]).map((feature, i) => (
-                      <div key={i} className="flex items-start gap-2">
+                      <div key={i} className="flex items-start gap-3">
                         <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-sm">{feature}</span>
+                        <span className="text-sm text-foreground">{feature}</span>
                       </div>
                     ))}
                   </div>
@@ -268,18 +271,17 @@ const Subscriptions = () => {
                   <Button
                     onClick={() => handleSelectPlan(plan.id, plan.tier)}
                     disabled={isCurrentPlan}
+                    size="lg"
                     className={
                       isPro
-                        ? "w-full bg-gradient-primary hover:shadow-glow"
-                        : isCurrentPlan
-                        ? "w-full"
-                        : "w-full"
+                        ? "w-full bg-gradient-primary hover:shadow-glow transition-all duration-300"
+                        : "w-full transition-all duration-300"
                     }
                     variant={isCurrentPlan ? "outline" : "default"}
                   >
                     {isCurrentPlan
                       ? t("subscription.currentPlan") || "Current Plan"
-                      : plan.tier.toLowerCase() === "free"
+                      : plan.tier.toLowerCase() === "basic"
                       ? t("subscription.getStarted") || "Get Started"
                       : t("subscription.upgrade") || "Upgrade Now"}
                   </Button>
