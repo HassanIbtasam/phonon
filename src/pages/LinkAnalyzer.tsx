@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
-import phononLogo from "@/assets/phonon-logo.jpeg";
+import phononLogo from "@/assets/phonon-logo.png";
 
 const LinkAnalyzer = () => {
   const navigate = useNavigate();

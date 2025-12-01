@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ScanLine, LayoutDashboard, Radio, Link as LinkIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
-import phononLogo from "@/assets/phonon-logo.jpeg";
+import phononLogo from "@/assets/phonon-logo.png";
 
 type View = "hero" | "scanner" | "live" | "dashboard";
 
