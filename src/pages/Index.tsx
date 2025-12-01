@@ -56,7 +56,7 @@ const Index = () => {
               className={currentView === "live" ? "bg-gradient-primary" : ""}
             >
               <Radio className="w-4 h-4 mr-2" />
-              Live
+              {t("nav.live")}
             </Button>
             <Button
               variant={currentView === "dashboard" ? "default" : "ghost"}
@@ -71,7 +71,7 @@ const Index = () => {
               onClick={() => navigate("/link-analyzer")}
             >
               <LinkIcon className="w-4 h-4 mr-2" />
-              Link Analyzer
+              {t("nav.linkAnalyzer")}
             </Button>
           </div>
         </div>

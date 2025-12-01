@@ -51,12 +51,12 @@ export default function Auth() {
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "Account created! You can now log in.",
+        title: t("auth.success"),
+        description: t("auth.accountCreated"),
       });
     } catch (error: any) {
       toast({
-        title: "Sign up failed",
+        title: t("auth.signUpFailed"),
         description: error.message,
         variant: "destructive",
       });
@@ -78,12 +78,12 @@ export default function Auth() {
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "Logged in successfully!",
+        title: t("auth.success"),
+        description: t("auth.loggedIn"),
       });
     } catch (error: any) {
       toast({
-        title: "Sign in failed",
+        title: t("auth.signInFailed"),
         description: error.message,
         variant: "destructive",
       });
@@ -97,16 +97,16 @@ export default function Auth() {
       <Card className="w-full max-w-md p-8 bg-gradient-card border-border shadow-card">
         <div className="flex flex-col items-center space-y-4 mb-8">
           <Shield className="w-16 h-16 text-primary" />
-          <h1 className="font-display text-3xl font-bold text-center">Phonon AI</h1>
+          <h1 className="font-display text-3xl font-bold text-center">{t("auth.title")}</h1>
           <p className="text-muted-foreground text-center">
-            Sign in to flag scam numbers and help protect others
+            {t("auth.subtitle")}
           </p>
         </div>
 
         <Tabs defaultValue="signin" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsTrigger value="signin">{t("auth.signIn")}</TabsTrigger>
+            <TabsTrigger value="signup">{t("auth.signUp")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="signin">
@@ -114,11 +114,11 @@ export default function Auth() {
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <Mail className="w-4 h-4" />
-                  Email
+                  {t("auth.email")}
                 </label>
                 <Input
                   type="email"
-                  placeholder="your@email.com"
+                  placeholder={t("auth.emailPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -129,11 +129,11 @@ export default function Auth() {
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <Lock className="w-4 h-4" />
-                  Password
+                  {t("auth.password")}
                 </label>
                 <Input
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={t("auth.passwordPlaceholder")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -150,10 +150,10 @@ export default function Auth() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Signing in...
+                    {t("auth.signingIn")}
                   </>
                 ) : (
-                  "Sign In"
+                  t("auth.signIn")
                 )}
               </Button>
             </form>
@@ -164,11 +164,11 @@ export default function Auth() {
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <Mail className="w-4 h-4" />
-                  Email
+                  {t("auth.email")}
                 </label>
                 <Input
                   type="email"
-                  placeholder="your@email.com"
+                  placeholder={t("auth.emailPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -179,11 +179,11 @@ export default function Auth() {
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <Lock className="w-4 h-4" />
-                  Password
+                  {t("auth.password")}
                 </label>
                 <Input
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={t("auth.passwordPlaceholder")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -191,7 +191,7 @@ export default function Auth() {
                   className="bg-secondary border-border"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Password must be at least 6 characters
+                  {t("auth.passwordRequirement")}
                 </p>
               </div>
 
@@ -203,10 +203,10 @@ export default function Auth() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating account...
+                    {t("auth.creatingAccount")}
                   </>
                 ) : (
-                  "Sign Up"
+                  t("auth.signUp")
                 )}
               </Button>
             </form>

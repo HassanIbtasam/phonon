@@ -87,11 +87,11 @@ export const ScamStats = () => {
         <div className="text-center space-y-4 animate-fade-in">
           <h2 className="font-display text-4xl md:text-5xl font-bold">
             <span className="bg-gradient-primary bg-clip-text text-transparent">
-              GCC Scam Statistics 2025
+              {t("stats.title")}
             </span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Real-time data on fraud and scam attempts across Gulf Cooperation Council countries
+            {t("stats.subtitle")}
           </p>
         </div>
 
@@ -99,52 +99,52 @@ export const ScamStats = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card className="border-primary/30 animate-fade-in hover-scale" style={{ animationDelay: "0.1s" }}>
             <CardHeader className="pb-3">
-              <CardDescription>Total Cases</CardDescription>
+              <CardDescription>{t("stats.totalCases")}</CardDescription>
               <CardTitle className="text-3xl font-bold text-primary">{animatedTotalCases.toLocaleString()}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center text-sm text-success">
                 <TrendingUp className="w-4 h-4 mr-1" />
-                <span>+12% from last quarter</span>
+                <span>+12% {t("stats.fromLastQuarter")}</span>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-warning/30 animate-fade-in hover-scale" style={{ animationDelay: "0.2s" }}>
             <CardHeader className="pb-3">
-              <CardDescription>High Risk Attempts</CardDescription>
+              <CardDescription>{t("stats.highRiskAttempts")}</CardDescription>
               <CardTitle className="text-3xl font-bold text-warning">{animatedHighRisk.toLocaleString()}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center text-sm text-muted-foreground">
                 <AlertTriangle className="w-4 h-4 mr-1" />
-                <span>Prevented by AI</span>
+                <span>{t("stats.preventedByAI")}</span>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-chart-3/30 animate-fade-in hover-scale" style={{ animationDelay: "0.3s" }}>
             <CardHeader className="pb-3">
-              <CardDescription>SMS Scams</CardDescription>
+              <CardDescription>{t("stats.smsScams")}</CardDescription>
               <CardTitle className="text-3xl font-bold" style={{ color: "hsl(var(--chart-3))" }}>{animatedSMS.toLocaleString()}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center text-sm text-muted-foreground">
                 <MessageSquare className="w-4 h-4 mr-1" />
-                <span>65% of total</span>
+                <span>65% {t("stats.ofTotal")}</span>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-chart-4/30 animate-fade-in hover-scale" style={{ animationDelay: "0.4s" }}>
             <CardHeader className="pb-3">
-              <CardDescription>Phone Call Scams</CardDescription>
+              <CardDescription>{t("stats.phoneCallScams")}</CardDescription>
               <CardTitle className="text-3xl font-bold" style={{ color: "hsl(var(--chart-4))" }}>{animatedPhone.toLocaleString()}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center text-sm text-muted-foreground">
                 <Phone className="w-4 h-4 mr-1" />
-                <span>35% of total</span>
+                <span>35% {t("stats.ofTotal")}</span>
               </div>
             </CardContent>
           </Card>
@@ -155,8 +155,8 @@ export const ScamStats = () => {
           {/* Scam Types Distribution */}
           <Card className="animate-fade-in" style={{ animationDelay: "0.5s" }}>
             <CardHeader>
-              <CardTitle>Scam Types Distribution</CardTitle>
-              <CardDescription>Most common fraud categories in GCC region</CardDescription>
+              <CardTitle>{t("stats.scamTypes")}</CardTitle>
+              <CardDescription>{t("stats.scamTypesDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={chartConfig} className="h-[300px]">
@@ -189,8 +189,8 @@ export const ScamStats = () => {
           {/* Cases by Country */}
           <Card className="animate-fade-in" style={{ animationDelay: "0.6s" }}>
             <CardHeader>
-              <CardTitle>Cases by Country</CardTitle>
-              <CardDescription>Scam reports across GCC nations</CardDescription>
+              <CardTitle>{t("stats.casesByCountry")}</CardTitle>
+              <CardDescription>{t("stats.casesByCountryDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={chartConfig} className="h-[300px]">
@@ -217,8 +217,8 @@ export const ScamStats = () => {
           {/* Monthly Trend - Full Width */}
           <Card className="lg:col-span-2 animate-fade-in" style={{ animationDelay: "0.7s" }}>
             <CardHeader>
-              <CardTitle>2025 Monthly Trend</CardTitle>
-              <CardDescription>Scam cases reported per month in GCC region</CardDescription>
+              <CardTitle>{t("stats.monthlyTrend")}</CardTitle>
+              <CardDescription>{t("stats.monthlyTrendDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={chartConfig} className="h-[300px]">

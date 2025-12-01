@@ -12,15 +12,15 @@ export const LiveScamDetection = () => {
           {t("live.title")}
         </h1>
         <p className="text-muted-foreground text-lg">
-          Coming Soon
+          {t("live.comingSoon")}
         </p>
       </div>
 
       <Card className="p-12 text-center border-primary/20">
         <Shield className="w-16 h-16 text-primary mx-auto mb-4" />
-        <h3 className="text-xl font-semibold mb-2">Feature In Development</h3>
+        <h3 className="text-xl font-semibold mb-2">{t("live.featureInDev")}</h3>
         <p className="text-muted-foreground">
-          Live call monitoring will be available in a future update.
+          {t("live.featureInDevDesc")}
         </p>
       </Card>
     </div>
