@@ -1,7 +1,7 @@
 import { Zap, Lock, ScanLine, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import phononLogo from "@/assets/phonon-logo.jpeg";
+import phononLogo from "@/assets/phonon-logo.png";
 
 interface HeroProps {
   onGetStarted: () => void;
