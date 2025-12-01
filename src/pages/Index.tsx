@@ -7,7 +7,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { FAQ } from "@/components/FAQ";
 import { ScamStats } from "@/components/ScamStats";
 import { Button } from "@/components/ui/button";
-import { ScanLine, LayoutDashboard, Radio, Link as LinkIcon } from "lucide-react";
+import { ScanLine, LayoutDashboard, Radio, Link as LinkIcon, Crown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import phononLogo from "@/assets/phonon-logo.png";
@@ -72,6 +72,13 @@ const Index = () => {
             >
               <LinkIcon className="w-4 h-4 mr-2" />
               {t("nav.linkAnalyzer")}
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/subscriptions")}
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              {t("nav.pricing") || "Pricing"}
             </Button>
           </div>
         </div>
