@@ -138,8 +138,8 @@ export const MessageScanner = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast({
-      title: "Signed out",
-      description: "You have been signed out successfully",
+      title: t("common.signedOut"),
+      description: t("common.signedOutDesc"),
     });
   };
 
@@ -192,7 +192,7 @@ export const MessageScanner = () => {
               variant="outline"
               size="sm"
             >
-              My History
+              {t("nav.myHistory")}
             </Button>
           )}
           {user ? (
@@ -203,7 +203,7 @@ export const MessageScanner = () => {
               className="gap-2"
             >
               <LogOut className="w-4 h-4" />
-              Sign Out
+              {t("nav.signOut")}
             </Button>
           ) : (
             <Button
@@ -211,7 +211,7 @@ export const MessageScanner = () => {
               variant="outline"
               size="sm"
             >
-              Sign In
+              {t("nav.signIn")}
             </Button>
           )}
         </div>

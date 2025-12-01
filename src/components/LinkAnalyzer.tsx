@@ -25,8 +25,8 @@ export const LinkAnalyzer = () => {
   const analyzeLink = async () => {
     if (!url.trim()) {
       toast({
-        title: "Error",
-        description: "Please enter a URL to analyze",
+        title: t("linkAnalyzer.error"),
+        description: t("linkAnalyzer.emptyUrl"),
         variant: "destructive",
       });
       return;
@@ -37,8 +37,8 @@ export const LinkAnalyzer = () => {
       new URL(url.trim().startsWith('http') ? url.trim() : `https://${url.trim()}`);
     } catch {
       toast({
-        title: "Invalid URL",
-        description: "Please enter a valid URL",
+        title: t("linkAnalyzer.invalidUrl"),
+        description: t("linkAnalyzer.invalidUrlDesc"),
         variant: "destructive",
       });
       return;
@@ -58,8 +58,8 @@ export const LinkAnalyzer = () => {
     } catch (error: any) {
       console.error('Error analyzing link:', error);
       toast({
-        title: "Analysis Failed",
-        description: error.message || "Failed to analyze the link. Please try again.",
+        title: t("linkAnalyzer.analysisFailed"),
+        description: error.message || t("linkAnalyzer.analysisFailedDesc"),
         variant: "destructive",
       });
     } finally {
@@ -80,9 +80,9 @@ export const LinkAnalyzer = () => {
   };
 
   const getRiskLabel = (riskFactor: number) => {
-    if (riskFactor < 30) return "Lower Risk";
-    if (riskFactor < 70) return "Moderate Risk";
-    return "Higher Risk";
+    if (riskFactor < 30) return t("linkAnalyzer.lowerRisk");
+    if (riskFactor < 70) return t("linkAnalyzer.moderateRisk");
+    return t("linkAnalyzer.higherRisk");
   };
 
   const getRiskBadge = (riskFactor: number) => {
@@ -96,10 +96,10 @@ export const LinkAnalyzer = () => {
       <div className="text-center mb-8 animate-in fade-in slide-in-from-top duration-700">
         <LinkIcon className="w-16 h-16 text-primary mx-auto mb-4" />
         <h1 className="font-display text-4xl font-bold mb-3">
-          Link Security Analyzer
+          {t("linkAnalyzer.title")}
         </h1>
         <p className="text-muted-foreground text-lg">
-          Paste any suspicious link and let AI analyze it for security threats
+          {t("linkAnalyzer.subtitle")}
         </p>
       </div>
 
@@ -107,12 +107,12 @@ export const LinkAnalyzer = () => {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2">
-              Enter URL to Analyze
+              {t("linkAnalyzer.label")}
             </label>
             <Textarea
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com or paste any suspicious link here..."
+              placeholder={t("linkAnalyzer.placeholder")}
               className="min-h-[100px] font-mono text-sm"
               disabled={isAnalyzing}
             />
@@ -127,12 +127,12 @@ export const LinkAnalyzer = () => {
             {isAnalyzing ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Analyzing Link...
+                {t("linkAnalyzer.analyzing")}
               </>
             ) : (
               <>
                 <Shield className="w-4 h-4 mr-2" />
-                Analyze Link
+                {t("linkAnalyzer.button")}
               </>
             )}
           </Button>
@@ -166,7 +166,7 @@ export const LinkAnalyzer = () => {
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {result.confidence.toUpperCase()} CONFIDENCE • Security Analysis Complete
+                  {result.confidence.toUpperCase()} {t("linkAnalyzer.confidence")} • {t("linkAnalyzer.securityAnalysis")}
                 </p>
               </div>
             </div>
@@ -176,7 +176,7 @@ export const LinkAnalyzer = () => {
               <div>
                 <h4 className="font-semibold mb-3 flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5" />
-                  Security Concerns Detected
+                  {t("linkAnalyzer.concerns")}
                 </h4>
                 <ul className="space-y-2">
                   {result.concerns.map((concern, index) => (
@@ -191,7 +191,7 @@ export const LinkAnalyzer = () => {
 
             {/* Detailed Analysis */}
             <div>
-              <h4 className="font-semibold mb-2">Detailed Analysis</h4>
+              <h4 className="font-semibold mb-2">{t("linkAnalyzer.detailedAnalysis")}</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {result.analysis}
               </p>
@@ -201,7 +201,7 @@ export const LinkAnalyzer = () => {
             <div className="bg-muted/50 border border-border rounded-lg p-4">
               <h4 className="font-semibold mb-2 flex items-center gap-2">
                 <Shield className="w-5 h-5" />
-                Recommendation
+                {t("linkAnalyzer.recommendation")}
               </h4>
               <p className="text-sm">
                 {result.recommendation}
@@ -215,24 +215,24 @@ export const LinkAnalyzer = () => {
       <Card className="p-6 mt-6 bg-muted/30 border-dashed animate-in fade-in duration-700 delay-500">
         <h4 className="font-semibold mb-3 flex items-center gap-2">
           <Shield className="w-5 h-5 text-primary" />
-          How Link Analysis Works
+          {t("linkAnalyzer.howItWorks")}
         </h4>
         <ul className="space-y-2 text-sm text-muted-foreground">
           <li className="flex items-start gap-2">
             <span className="text-primary mt-1">•</span>
-            <span>AI analyzes domain reputation, structure, and known malicious patterns</span>
+            <span>{t("linkAnalyzer.feature1")}</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-primary mt-1">•</span>
-            <span>Detects phishing attempts, typosquatting, and social engineering tactics</span>
+            <span>{t("linkAnalyzer.feature2")}</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-primary mt-1">•</span>
-            <span>Identifies suspicious URL shorteners and encoded characters</span>
+            <span>{t("linkAnalyzer.feature3")}</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-primary mt-1">•</span>
-            <span>Real-time analysis with no data stored on our servers</span>
+            <span>{t("linkAnalyzer.feature4")}</span>
           </li>
         </ul>
       </Card>

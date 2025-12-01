@@ -120,30 +120,30 @@ export default function History() {
             className="gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back
+            {t("history.back")}
           </Button>
         </div>
 
         <div className="text-center space-y-2">
-          <h1 className="font-display text-4xl font-bold">Your Scan History</h1>
+          <h1 className="font-display text-4xl font-bold">{t("history.title")}</h1>
           <p className="text-muted-foreground">
-            View all your previous scam detection scans
+            {t("history.subtitle")}
           </p>
         </div>
 
         {isLoading ? (
           <Card className="p-8 text-center">
-            <p className="text-muted-foreground">Loading your history...</p>
+            <p className="text-muted-foreground">{t("history.loading")}</p>
           </Card>
         ) : history.length === 0 ? (
           <Card className="p-8 text-center">
             <Shield className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-2">No scans yet</h3>
+            <h3 className="font-semibold text-lg mb-2">{t("history.noScans")}</h3>
             <p className="text-muted-foreground mb-4">
-              Start scanning messages to build your history
+              {t("history.noScansDesc")}
             </p>
             <Button onClick={() => navigate("/")}>
-              Start Scanning
+              {t("history.startScanning")}
             </Button>
           </Card>
         ) : (
@@ -174,12 +174,12 @@ export default function History() {
                     )}
 
                     <div className="bg-secondary/50 rounded-lg p-3">
-                      <p className="text-sm text-muted-foreground mb-1">Message Preview:</p>
+                      <p className="text-sm text-muted-foreground mb-1">{t("history.messagePreview")}</p>
                       <p className="text-sm">{item.message_preview}</p>
                     </div>
 
                     <div className="pt-2 border-t border-border">
-                      <p className="text-sm text-muted-foreground mb-1">Analysis:</p>
+                      <p className="text-sm text-muted-foreground mb-1">{t("history.analysis")}</p>
                       <p className="text-sm">{item.reason}</p>
                     </div>
                   </div>
