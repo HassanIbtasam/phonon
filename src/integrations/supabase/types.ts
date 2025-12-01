@@ -71,6 +71,125 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          features: Json
+          id: string
+          link_analysis_limit: number | null
+          live_call_limit: number | null
+          name: string
+          price_monthly: number
+          price_yearly: number
+          screenshot_analysis_limit: number | null
+          text_analysis_limit: number | null
+          tier: string
+        }
+        Insert: {
+          created_at?: string
+          features?: Json
+          id?: string
+          link_analysis_limit?: number | null
+          live_call_limit?: number | null
+          name: string
+          price_monthly: number
+          price_yearly: number
+          screenshot_analysis_limit?: number | null
+          text_analysis_limit?: number | null
+          tier: string
+        }
+        Update: {
+          created_at?: string
+          features?: Json
+          id?: string
+          link_analysis_limit?: number | null
+          live_call_limit?: number | null
+          name?: string
+          price_monthly?: number
+          price_yearly?: number
+          screenshot_analysis_limit?: number | null
+          text_analysis_limit?: number | null
+          tier?: string
+        }
+        Relationships: []
+      }
+      usage_tracking: {
+        Row: {
+          created_at: string
+          feature_type: string
+          id: string
+          period_end: string
+          period_start: string
+          updated_at: string
+          usage_count: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feature_type: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          updated_at?: string
+          usage_count?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feature_type?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          updated_at?: string
+          usage_count?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          billing_period: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          plan_id: string
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_period: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          plan_id: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          billing_period?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          plan_id?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
