@@ -8,7 +8,7 @@ import { Loader2, Shield, AlertTriangle, AlertCircle, Link as LinkIcon } from "l
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AnalysisResult {
-  risk: "safe" | "suspicious" | "dangerous";
+  riskFactor: number;
   confidence: "low" | "medium" | "high";
   concerns: string[];
   analysis: string;
@@ -67,31 +67,28 @@ export const LinkAnalyzer = () => {
     }
   };
 
-  const getRiskColor = (risk: string) => {
-    switch (risk) {
-      case "safe": return "text-success";
-      case "suspicious": return "text-warning";
-      case "dangerous": return "text-destructive";
-      default: return "text-muted-foreground";
-    }
+  const getRiskColor = (riskFactor: number) => {
+    if (riskFactor < 30) return "text-success";
+    if (riskFactor < 70) return "text-warning";
+    return "text-destructive";
   };
 
-  const getRiskIcon = (risk: string) => {
-    switch (risk) {
-      case "safe": return <Shield className="w-8 h-8 text-success" />;
-      case "suspicious": return <AlertTriangle className="w-8 h-8 text-warning" />;
-      case "dangerous": return <AlertCircle className="w-8 h-8 text-destructive" />;
-      default: return <LinkIcon className="w-8 h-8 text-muted-foreground" />;
-    }
+  const getRiskIcon = (riskFactor: number) => {
+    if (riskFactor < 30) return <Shield className="w-8 h-8 text-success" />;
+    if (riskFactor < 70) return <AlertTriangle className="w-8 h-8 text-warning" />;
+    return <AlertCircle className="w-8 h-8 text-destructive" />;
   };
 
-  const getRiskBadge = (risk: string) => {
-    const badges = {
-      safe: "bg-success/10 text-success border-success/20",
-      suspicious: "bg-warning/10 text-warning border-warning/20",
-      dangerous: "bg-destructive/10 text-destructive border-destructive/20"
-    };
-    return badges[risk as keyof typeof badges] || "";
+  const getRiskLabel = (riskFactor: number) => {
+    if (riskFactor < 30) return "Lower Risk";
+    if (riskFactor < 70) return "Moderate Risk";
+    return "Higher Risk";
+  };
+
+  const getRiskBadge = (riskFactor: number) => {
+    if (riskFactor < 30) return "bg-success/10 text-success border-success/20";
+    if (riskFactor < 70) return "bg-warning/10 text-warning border-warning/20";
+    return "bg-destructive/10 text-destructive border-destructive/20";
   };
 
   return (
@@ -147,18 +144,29 @@ export const LinkAnalyzer = () => {
           <div className="space-y-6">
             {/* Risk Level Header */}
             <div className="flex items-center gap-4 pb-4 border-b">
-              {getRiskIcon(result.risk)}
+              {getRiskIcon(result.riskFactor)}
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-1">
-                  <h3 className={`text-2xl font-bold ${getRiskColor(result.risk)}`}>
-                    {result.risk.toUpperCase()}
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className={`text-3xl font-bold ${getRiskColor(result.riskFactor)}`}>
+                    {result.riskFactor}/100
                   </h3>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getRiskBadge(result.risk)}`}>
-                    {result.confidence.toUpperCase()} CONFIDENCE
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getRiskBadge(result.riskFactor)}`}>
+                    {getRiskLabel(result.riskFactor)}
                   </span>
                 </div>
+                <div className="mb-2">
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all duration-1000 ${
+                        result.riskFactor < 30 ? 'bg-success' : 
+                        result.riskFactor < 70 ? 'bg-warning' : 'bg-destructive'
+                      }`}
+                      style={{ width: `${result.riskFactor}%` }}
+                    />
+                  </div>
+                </div>
                 <p className="text-sm text-muted-foreground">
-                  Security Analysis Complete
+                  {result.confidence.toUpperCase()} CONFIDENCE • Security Analysis Complete
                 </p>
               </div>
             </div>

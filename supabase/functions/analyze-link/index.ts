@@ -39,14 +39,14 @@ Consider:
 9. Known malicious patterns
 
 Provide a detailed security analysis with:
-- Risk level: "safe", "suspicious", or "dangerous"
+- Risk factor: A number from 0 to 100, where 0 means completely safe and 100 means extremely dangerous
 - Specific concerns identified
 - Confidence level in your assessment
 - Recommendations for the user
 
 Return your analysis in this JSON format:
 {
-  "risk": "safe" | "suspicious" | "dangerous",
+  "riskFactor": 0-100 (number),
   "confidence": "low" | "medium" | "high",
   "concerns": ["list of specific security concerns"],
   "analysis": "detailed explanation of findings",
@@ -107,7 +107,7 @@ Return your analysis in this JSON format:
       console.error('Failed to parse AI response as JSON:', parseError);
       // Fallback response
       result = {
-        risk: 'suspicious',
+        riskFactor: 50,
         confidence: 'low',
         concerns: ['Unable to fully analyze the URL'],
         analysis: aiResponse,
