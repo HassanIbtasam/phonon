@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { ScreenshotScanner } from "./ScreenshotScanner";
+import { useUsageTracking } from "@/hooks/use-usage-tracking";
 import type { User } from "@supabase/supabase-js";
 
 interface ScanResult {
@@ -26,8 +27,9 @@ export const MessageScanner = () => {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
+  const { checkAndIncrement } = useUsageTracking();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -48,6 +50,12 @@ export const MessageScanner = () => {
         description: t("scanner.emptyDesc"),
         variant: "destructive",
       });
+      return;
+    }
+
+    // Check usage limit before scanning
+    const canProceed = await checkAndIncrement('text_analysis', language);
+    if (!canProceed) {
       return;
     }
 
