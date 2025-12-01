@@ -203,7 +203,7 @@ const Subscriptions = () => {
                 >
                   {isPro && (
                     <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-primary border-0 px-4 py-1">
-                      {t("subscription.popular") || "Most Popular"}
+                      Popular
                     </Badge>
                   )}
                   
@@ -222,7 +222,7 @@ const Subscriptions = () => {
                     <div className="flex items-baseline justify-center gap-1 mb-2">
                       <span className="text-5xl font-bold text-foreground">${price}</span>
                       <span className="text-lg text-muted-foreground">
-                        /{billingPeriod === "monthly" ? t("subscription.mo") || "mo" : t("subscription.yr") || "yr"}
+                        /month
                       </span>
                     </div>
                   </div>
@@ -254,7 +254,7 @@ const Subscriptions = () => {
                       <div className="flex items-start gap-3">
                         <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                         <span className="text-sm text-foreground">
-                          <strong className="font-semibold">{formatLimit(plan.live_call_limit)}</strong> live call minutes
+                          <strong className="font-semibold">{formatLimit(plan.live_call_limit)}</strong> live call scans
                         </span>
                       </div>
                     )}
