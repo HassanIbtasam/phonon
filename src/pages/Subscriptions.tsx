@@ -314,21 +314,6 @@ const Subscriptions = () => {
             })}
           </div>
 
-          {/* Bottom CTA */}
-          <div className="mt-20 text-center animate-in fade-in duration-700 delay-300">
-            <div className="max-w-3xl mx-auto bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-lg border-2 border-primary/20 rounded-2xl p-12 shadow-xl">
-              <Crown className="w-16 h-16 mx-auto mb-6 text-primary" />
-              <h3 className="font-display text-3xl md:text-4xl font-bold mb-4 text-foreground">
-                {t("pricing.enterprise.title")}
-              </h3>
-              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-                {t("pricing.enterprise.desc")}
-              </p>
-              <Button size="lg" className="bg-gradient-primary hover:shadow-glow font-semibold text-base px-8">
-                {t("pricing.enterprise.cta")}
-              </Button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
