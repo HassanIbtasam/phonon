@@ -5,6 +5,7 @@ import { LiveScamDetection } from "@/components/LiveScamDetection";
 import { Dashboard } from "@/components/Dashboard";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { FAQ } from "@/components/FAQ";
+import { ScamStats } from "@/components/ScamStats";
 import { Button } from "@/components/ui/button";
 import { ScanLine, LayoutDashboard, Radio } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -69,7 +70,12 @@ const Index = () => {
 
       {/* Content */}
       <div className="pt-20">
-        {currentView === "hero" && <Hero onGetStarted={handleGetStarted} />}
+        {currentView === "hero" && (
+          <>
+            <Hero onGetStarted={handleGetStarted} />
+            <ScamStats />
+          </>
+        )}
         {currentView === "scanner" && (
           <div ref={scannerRef}>
             <MessageScanner />

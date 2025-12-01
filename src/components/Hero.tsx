@@ -2,7 +2,6 @@ import { Zap, Lock, ScanLine, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import phononLogo from "@/assets/phonon-logo.jpeg";
-import { ScamStats } from "@/components/ScamStats";
 
 interface HeroProps {
   onGetStarted: () => void;
@@ -12,14 +11,14 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
   const { t } = useLanguage();
   
   return (
-    <div className="relative min-h-[90vh] flex items-center justify-center px-4 overflow-hidden">
+    <div className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden opacity-20">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/30 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8">
+      <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8 py-20">
         {/* Logo */}
         <div className="flex justify-center mb-6 animate-in fade-in slide-in-from-top duration-700">
           <div className="relative">
@@ -70,29 +69,26 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
         </div>
 
         {/* Feature highlights */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-16 animate-in fade-in duration-700 delay-500">
-          <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 hover:border-primary/50 transition-colors">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-12 animate-in fade-in duration-700 delay-500">
+          <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 hover:border-primary/50 transition-all hover-scale">
             <ScanLine className="w-8 h-8 text-primary mx-auto mb-3" />
             <h3 className="font-display font-semibold mb-2">{t("hero.feature1.title")}</h3>
             <p className="text-sm text-muted-foreground">{t("hero.feature1.desc")}</p>
           </div>
           
-          <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 hover:border-primary/50 transition-colors">
+          <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 hover:border-primary/50 transition-all hover-scale">
             <Zap className="w-8 h-8 text-warning mx-auto mb-3" />
             <h3 className="font-display font-semibold mb-2">{t("hero.feature2.title")}</h3>
             <p className="text-sm text-muted-foreground">{t("hero.feature2.desc")}</p>
           </div>
           
-          <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 hover:border-primary/50 transition-colors">
+          <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 hover:border-primary/50 transition-all hover-scale">
             <Lock className="w-8 h-8 text-success mx-auto mb-3" />
             <h3 className="font-display font-semibold mb-2">{t("hero.feature3.title")}</h3>
             <p className="text-sm text-muted-foreground">{t("hero.feature3.desc")}</p>
           </div>
         </div>
       </div>
-
-      {/* Scam Statistics Section */}
-      <ScamStats />
     </div>
   );
 };
