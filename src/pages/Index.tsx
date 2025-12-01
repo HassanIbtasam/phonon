@@ -78,7 +78,7 @@ const Index = () => {
               onClick={() => navigate("/subscriptions")}
             >
               <Crown className="w-4 h-4 mr-2" />
-              Pricing
+              {t("nav.pricing")}
             </Button>
           </div>
         </div>

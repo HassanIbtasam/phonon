@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Check, Zap, Crown, Rocket, Gift, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import phononLogo from "@/assets/phonon-logo.png";
@@ -67,8 +68,8 @@ const Subscriptions = () => {
     } catch (error) {
       console.error("Error loading subscriptions:", error);
       toast({
-        title: "Error",
-        description: "Failed to load subscription plans. Please try again.",
+        title: t("pricing.error"),
+        description: t("pricing.errorDesc"),
         variant: "destructive",
       });
     } finally {
@@ -96,8 +97,8 @@ const Subscriptions = () => {
     
     if (!user) {
       toast({
-        title: "Authentication Required",
-        description: "Please sign in to subscribe to a plan",
+        title: t("pricing.authRequired"),
+        description: t("pricing.signInRequired"),
       });
       navigate("/auth");
       return;
@@ -105,8 +106,8 @@ const Subscriptions = () => {
 
     // For now, just show a success message
     toast({
-      title: "Plan Selected",
-      description: `You have selected the ${tier} plan. Payment integration coming soon!`,
+      title: t("pricing.planSelected"),
+      description: t("pricing.planSelectedDesc").replace("{tier}", tier),
     });
   };
 
@@ -133,18 +134,21 @@ const Subscriptions = () => {
             className="flex items-center gap-3 hover:opacity-80 transition-all cursor-pointer group"
           >
             <img src={phononLogo} alt="Phonon AI" className="w-10 h-10 object-contain group-hover:scale-110 transition-transform" />
-            <span className="font-display font-bold text-xl text-foreground">Phonon AI</span>
+            <span className="font-display font-bold text-xl text-foreground">{t("nav.title")}</span>
           </button>
           
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/")}
-            size="lg"
-            className="font-medium"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Button>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/")}
+              size="lg"
+              className="font-medium"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              {t("pricing.backToHome")}
+            </Button>
+          </div>
         </div>
       </nav>
 
@@ -155,11 +159,11 @@ const Subscriptions = () => {
           <div className="text-center mb-16 animate-in fade-in slide-in-from-top duration-700">
             <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 leading-tight">
               <span className="bg-gradient-primary bg-clip-text text-transparent">
-                Choose Your Plan
+                {t("pricing.title")}
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Advanced AI-powered scam protection for everyone
+              {t("pricing.subtitle")}
             </p>
           </div>
 
@@ -172,7 +176,7 @@ const Subscriptions = () => {
                 size="lg"
                 className={billingPeriod === "monthly" ? "bg-gradient-primary rounded-full px-8 font-semibold" : "rounded-full px-8 font-medium"}
               >
-                Monthly
+                {t("pricing.monthly")}
               </Button>
               <Button
                 variant={billingPeriod === "yearly" ? "default" : "ghost"}
@@ -180,9 +184,9 @@ const Subscriptions = () => {
                 size="lg"
                 className={billingPeriod === "yearly" ? "bg-gradient-primary rounded-full px-8 font-semibold" : "rounded-full px-8 font-medium"}
               >
-                Yearly
+                {t("pricing.yearly")}
                 <Badge className="ml-2 bg-success text-success-foreground font-semibold px-2">
-                  Save 20%
+                  {t("pricing.save")}
                 </Badge>
               </Button>
             </div>
@@ -207,13 +211,13 @@ const Subscriptions = () => {
                 >
                   {isPro && (
                     <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-primary border-0 px-4 py-1">
-                      Popular
+                      {t("pricing.popular")}
                     </Badge>
                   )}
                   
                   {isCurrentPlan && (
                     <Badge className="absolute -top-3 right-4 bg-success border-0 px-3 py-1 font-semibold">
-                      Current Plan
+                      {t("pricing.currentPlan")}
                     </Badge>
                   )}
 
@@ -226,7 +230,7 @@ const Subscriptions = () => {
                     <div className="flex items-baseline justify-center gap-1 mb-2">
                       <span className="text-5xl font-bold text-foreground">${price}</span>
                       <span className="text-lg text-muted-foreground">
-                        /month
+                        {t("pricing.perMonth")}
                       </span>
                     </div>
                   </div>
@@ -239,26 +243,26 @@ const Subscriptions = () => {
                     <div className="flex items-start gap-3">
                       <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <span className="text-sm text-foreground">
-                        <strong className="font-semibold">{formatLimit(plan.text_analysis_limit)}</strong> text scans
+                        <strong className="font-semibold">{formatLimit(plan.text_analysis_limit)}</strong> {t("pricing.textScans")}
                       </span>
                     </div>
                     <div className="flex items-start gap-3">
                       <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <span className="text-sm text-foreground">
-                        <strong className="font-semibold">{formatLimit(plan.screenshot_analysis_limit)}</strong> screenshot scans
+                        <strong className="font-semibold">{formatLimit(plan.screenshot_analysis_limit)}</strong> {t("pricing.screenshotScans")}
                       </span>
                     </div>
                     <div className="flex items-start gap-3">
                       <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <span className="text-sm text-foreground">
-                        <strong className="font-semibold">{formatLimit(plan.link_analysis_limit)}</strong> link analyses
+                        <strong className="font-semibold">{formatLimit(plan.link_analysis_limit)}</strong> {t("pricing.linkAnalyses")}
                       </span>
                     </div>
                     {plan.live_call_limit !== null && (
                       <div className="flex items-start gap-3">
                         <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                         <span className="text-sm text-foreground">
-                          <strong className="font-semibold">{formatLimit(plan.live_call_limit)}</strong> live call scans
+                          <strong className="font-semibold">{formatLimit(plan.live_call_limit)}</strong> {t("pricing.liveCallScans")}
                         </span>
                       </div>
                     )}
@@ -284,10 +288,10 @@ const Subscriptions = () => {
                     variant={isCurrentPlan ? "outline" : "default"}
                   >
                     {isCurrentPlan
-                      ? "Current Plan"
+                      ? t("pricing.currentPlan")
                       : plan.tier.toLowerCase() === "basic"
-                      ? "Get Started Free"
-                      : "Subscribe Now"}
+                      ? t("pricing.getStarted")
+                      : t("pricing.subscribe")}
                   </Button>
                 </Card>
               );
@@ -299,13 +303,13 @@ const Subscriptions = () => {
             <div className="max-w-3xl mx-auto bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-lg border-2 border-primary/20 rounded-2xl p-12 shadow-xl">
               <Crown className="w-16 h-16 mx-auto mb-6 text-primary" />
               <h3 className="font-display text-3xl md:text-4xl font-bold mb-4 text-foreground">
-                Need a Custom Solution?
+                {t("pricing.enterprise.title")}
               </h3>
               <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-                Contact our team for enterprise-grade protection with custom features, dedicated support, and volume pricing tailored to your organization.
+                {t("pricing.enterprise.desc")}
               </p>
               <Button size="lg" className="bg-gradient-primary hover:shadow-glow font-semibold text-base px-8">
-                Contact Sales Team
+                {t("pricing.enterprise.cta")}
               </Button>
             </div>
           </div>
