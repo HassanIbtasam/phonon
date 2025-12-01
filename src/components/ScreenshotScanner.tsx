@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, Image as ImageIcon, AlertTriangle, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useUsageTracking } from "@/hooks/use-usage-tracking";
 
 interface AnalysisResult {
   riskLevel: "low" | "medium" | "high";
@@ -19,6 +20,7 @@ interface AnalysisResult {
 export const ScreenshotScanner = () => {
   const { t, language } = useLanguage();
   const { toast } = useToast();
+  const { checkAndIncrement } = useUsageTracking();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -60,6 +62,12 @@ export const ScreenshotScanner = () => {
 
   const analyzeScreenshot = async () => {
     if (!selectedImage) return;
+
+    // Check usage limit before analyzing
+    const canProceed = await checkAndIncrement('screenshot_analysis', language);
+    if (!canProceed) {
+      return;
+    }
 
     setIsAnalyzing(true);
     setAnalysisResult(null);

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Shield, AlertTriangle, CheckCircle2, TrendingUp } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { UsageTracker } from "@/components/UsageTracker";
 
 interface ScanHistoryItem {
   message: string;
@@ -66,11 +67,14 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 py-12 space-y-12">
       <div className="text-center space-y-4">
         <h2 className="font-display text-4xl font-bold">{t("dashboard.title")}</h2>
         <p className="text-muted-foreground">{t("dashboard.subtitle")}</p>
       </div>
+
+      {/* Usage Tracker */}
+      <UsageTracker />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

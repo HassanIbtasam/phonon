@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Shield, AlertTriangle, AlertCircle, Link as LinkIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUsageTracking } from "@/hooks/use-usage-tracking";
 
 interface AnalysisResult {
   riskFactor: number;
@@ -20,7 +21,8 @@ export const LinkAnalyzer = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const { checkAndIncrement } = useUsageTracking();
 
   const analyzeLink = async () => {
     if (!url.trim()) {
@@ -41,6 +43,12 @@ export const LinkAnalyzer = () => {
         description: t("linkAnalyzer.invalidUrlDesc"),
         variant: "destructive",
       });
+      return;
+    }
+
+    // Check usage limit before analyzing
+    const canProceed = await checkAndIncrement('link_analysis', language);
+    if (!canProceed) {
       return;
     }
 
