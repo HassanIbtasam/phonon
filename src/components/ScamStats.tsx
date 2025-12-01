@@ -3,6 +3,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell, LineChart, Line, ResponsiveContainer } from "recharts";
 import { TrendingUp, AlertTriangle, Phone, MessageSquare } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useEffect, useState } from "react";
 
 const scamTypeData = [
   { type: "Financial", count: 2840, color: "hsl(var(--chart-1))" },
@@ -22,12 +23,18 @@ const countryData = [
 ];
 
 const monthlyTrendData = [
-  { month: "Jan", cases: 780 },
-  { month: "Feb", cases: 920 },
-  { month: "Mar", cases: 1050 },
-  { month: "Apr", cases: 1180 },
-  { month: "May", cases: 1340 },
-  { month: "Jun", cases: 1620 },
+  { month: "Jan", cases: 980 },
+  { month: "Feb", cases: 1120 },
+  { month: "Mar", cases: 1290 },
+  { month: "Apr", cases: 1450 },
+  { month: "May", cases: 1680 },
+  { month: "Jun", cases: 1920 },
+  { month: "Jul", cases: 2150 },
+  { month: "Aug", cases: 2380 },
+  { month: "Sep", cases: 2620 },
+  { month: "Oct", cases: 2890 },
+  { month: "Nov", cases: 3150 },
+  { month: "Dec", cases: 3420 },
 ];
 
 const chartConfig = {
@@ -37,19 +44,50 @@ const chartConfig = {
   },
 };
 
+const useCountingAnimation = (end: number, duration: number = 2000) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let startTime: number;
+    let animationFrame: number;
+
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime;
+      const progress = Math.min((currentTime - startTime) / duration, 1);
+      
+      setCount(Math.floor(progress * end));
+
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+
+    return () => cancelAnimationFrame(animationFrame);
+  }, [end, duration]);
+
+  return count;
+};
+
 export const ScamStats = () => {
   const { t } = useLanguage();
   const totalCases = countryData.reduce((sum, item) => sum + item.cases, 0);
   const totalScamTypes = scamTypeData.reduce((sum, item) => sum + item.count, 0);
+  
+  const animatedTotalCases = useCountingAnimation(totalCases);
+  const animatedHighRisk = useCountingAnimation(4520);
+  const animatedSMS = useCountingAnimation(8940);
+  const animatedPhone = useCountingAnimation(4680);
 
   return (
     <div className="py-20 px-4">
       <div className="max-w-7xl mx-auto space-y-12">
         {/* Header */}
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-4 animate-fade-in">
           <h2 className="font-display text-4xl md:text-5xl font-bold">
             <span className="bg-gradient-primary bg-clip-text text-transparent">
-              GCC Scam Statistics 2024
+              GCC Scam Statistics 2025
             </span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -59,10 +97,10 @@ export const ScamStats = () => {
 
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card className="border-primary/30">
+          <Card className="border-primary/30 animate-fade-in hover-scale" style={{ animationDelay: "0.1s" }}>
             <CardHeader className="pb-3">
               <CardDescription>Total Cases</CardDescription>
-              <CardTitle className="text-3xl font-bold text-primary">{totalCases.toLocaleString()}</CardTitle>
+              <CardTitle className="text-3xl font-bold text-primary">{animatedTotalCases.toLocaleString()}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center text-sm text-success">
@@ -72,10 +110,10 @@ export const ScamStats = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-warning/30">
+          <Card className="border-warning/30 animate-fade-in hover-scale" style={{ animationDelay: "0.2s" }}>
             <CardHeader className="pb-3">
               <CardDescription>High Risk Attempts</CardDescription>
-              <CardTitle className="text-3xl font-bold text-warning">4,520</CardTitle>
+              <CardTitle className="text-3xl font-bold text-warning">{animatedHighRisk.toLocaleString()}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center text-sm text-muted-foreground">
@@ -85,10 +123,10 @@ export const ScamStats = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-chart-3/30">
+          <Card className="border-chart-3/30 animate-fade-in hover-scale" style={{ animationDelay: "0.3s" }}>
             <CardHeader className="pb-3">
               <CardDescription>SMS Scams</CardDescription>
-              <CardTitle className="text-3xl font-bold" style={{ color: "hsl(var(--chart-3))" }}>8,940</CardTitle>
+              <CardTitle className="text-3xl font-bold" style={{ color: "hsl(var(--chart-3))" }}>{animatedSMS.toLocaleString()}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center text-sm text-muted-foreground">
@@ -98,10 +136,10 @@ export const ScamStats = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-chart-4/30">
+          <Card className="border-chart-4/30 animate-fade-in hover-scale" style={{ animationDelay: "0.4s" }}>
             <CardHeader className="pb-3">
               <CardDescription>Phone Call Scams</CardDescription>
-              <CardTitle className="text-3xl font-bold" style={{ color: "hsl(var(--chart-4))" }}>4,680</CardTitle>
+              <CardTitle className="text-3xl font-bold" style={{ color: "hsl(var(--chart-4))" }}>{animatedPhone.toLocaleString()}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center text-sm text-muted-foreground">
@@ -115,7 +153,7 @@ export const ScamStats = () => {
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Scam Types Distribution */}
-          <Card>
+          <Card className="animate-fade-in" style={{ animationDelay: "0.5s" }}>
             <CardHeader>
               <CardTitle>Scam Types Distribution</CardTitle>
               <CardDescription>Most common fraud categories in GCC region</CardDescription>
@@ -133,6 +171,9 @@ export const ScamStats = () => {
                       outerRadius={80}
                       fill="hsl(var(--primary))"
                       dataKey="count"
+                      animationBegin={0}
+                      animationDuration={1000}
+                      animationEasing="ease-out"
                     >
                       {scamTypeData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
@@ -146,7 +187,7 @@ export const ScamStats = () => {
           </Card>
 
           {/* Cases by Country */}
-          <Card>
+          <Card className="animate-fade-in" style={{ animationDelay: "0.6s" }}>
             <CardHeader>
               <CardTitle>Cases by Country</CardTitle>
               <CardDescription>Scam reports across GCC nations</CardDescription>
@@ -159,7 +200,14 @@ export const ScamStats = () => {
                     <XAxis dataKey="country" stroke="hsl(var(--muted-foreground))" />
                     <YAxis stroke="hsl(var(--muted-foreground))" />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="cases" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+                    <Bar 
+                      dataKey="cases" 
+                      fill="hsl(var(--primary))" 
+                      radius={[8, 8, 0, 0]}
+                      animationBegin={0}
+                      animationDuration={1000}
+                      animationEasing="ease-out"
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </ChartContainer>
@@ -167,9 +215,9 @@ export const ScamStats = () => {
           </Card>
 
           {/* Monthly Trend - Full Width */}
-          <Card className="lg:col-span-2">
+          <Card className="lg:col-span-2 animate-fade-in" style={{ animationDelay: "0.7s" }}>
             <CardHeader>
-              <CardTitle>2024 Monthly Trend</CardTitle>
+              <CardTitle>2025 Monthly Trend</CardTitle>
               <CardDescription>Scam cases reported per month in GCC region</CardDescription>
             </CardHeader>
             <CardContent>
@@ -186,6 +234,9 @@ export const ScamStats = () => {
                       stroke="hsl(var(--primary))"
                       strokeWidth={3}
                       dot={{ fill: "hsl(var(--primary))", r: 6 }}
+                      animationBegin={0}
+                      animationDuration={1500}
+                      animationEasing="ease-out"
                     />
                   </LineChart>
                 </ResponsiveContainer>
