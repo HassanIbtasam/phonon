@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Shield, AlertTriangle, CheckCircle2, TrendingUp } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { UsageTracker } from "@/components/UsageTracker";
+import { PullToRefresh } from "@/components/PullToRefresh";
+import { useToast } from "@/hooks/use-toast";
 
 interface ScanHistoryItem {
   message: string;
@@ -20,26 +22,36 @@ export const Dashboard = () => {
     low: 0,
   });
   const { t } = useLanguage();
+  const { toast } = useToast();
+
+  const loadHistory = useCallback(() => {
+    const stored = JSON.parse(localStorage.getItem("scanHistory") || "[]");
+    setHistory(stored);
+    
+    const total = stored.length;
+    const high = stored.filter((s: ScanHistoryItem) => s.risk === "high").length;
+    const medium = stored.filter((s: ScanHistoryItem) => s.risk === "medium").length;
+    const low = stored.filter((s: ScanHistoryItem) => s.risk === "low").length;
+    
+    setStats({ total, high, medium, low });
+  }, []);
 
   useEffect(() => {
-    const loadHistory = () => {
-      const stored = JSON.parse(localStorage.getItem("scanHistory") || "[]");
-      setHistory(stored);
-      
-      const total = stored.length;
-      const high = stored.filter((s: ScanHistoryItem) => s.risk === "high").length;
-      const medium = stored.filter((s: ScanHistoryItem) => s.risk === "medium").length;
-      const low = stored.filter((s: ScanHistoryItem) => s.risk === "low").length;
-      
-      setStats({ total, high, medium, low });
-    };
-
     loadHistory();
     
     // Refresh every 5 seconds to catch new scans
     const interval = setInterval(loadHistory, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [loadHistory]);
+
+  const handleRefresh = useCallback(async () => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    loadHistory();
+    toast({
+      title: t("dashboard.refreshed") || "Refreshed",
+      description: t("dashboard.refreshedDesc") || "Dashboard data updated",
+    });
+  }, [loadHistory, toast, t]);
 
   const getRiskIcon = (risk: string) => {
     switch (risk) {
@@ -67,10 +79,12 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12 space-y-12">
-      <div className="text-center space-y-4">
-        <h2 className="font-display text-4xl font-bold">{t("dashboard.title")}</h2>
-        <p className="text-muted-foreground">{t("dashboard.subtitle")}</p>
+    <PullToRefresh onRefresh={handleRefresh} className="min-h-[calc(100vh-5rem)]">
+    <div className="max-w-7xl mx-auto px-4 py-6 md:py-12 space-y-8 md:space-y-12">
+      <div className="text-center space-y-3 md:space-y-4">
+        <h2 className="font-display text-2xl md:text-4xl font-bold">{t("dashboard.title")}</h2>
+        <p className="text-muted-foreground text-sm md:text-base">{t("dashboard.subtitle")}</p>
+        <p className="text-xs text-muted-foreground/70 md:hidden">{t("dashboard.pullToRefresh") || "Pull down to refresh"}</p>
       </div>
 
       {/* Usage Tracker */}
@@ -152,5 +166,6 @@ export const Dashboard = () => {
         )}
       </Card>
     </div>
+    </PullToRefresh>
   );
 };
