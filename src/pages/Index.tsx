@@ -8,7 +8,7 @@ import { FAQ } from "@/components/FAQ";
 import { ScamStats } from "@/components/ScamStats";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { ScanLine, LayoutDashboard, Radio, Link as LinkIcon, Crown, Menu, Mail } from "lucide-react";
+import { ScanLine, LayoutDashboard, Radio, Link as LinkIcon, Crown, Menu, Mail, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import phononLogo from "@/assets/phonon-logo.png";
@@ -83,6 +83,14 @@ const Index = () => {
               <Crown className="w-4 h-4 mr-2" />
               {t("nav.pricing")}
             </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/auth")}
+              className="border-primary/50 hover:bg-primary/10"
+            >
+              <User className="w-4 h-4 mr-2" />
+              {t("nav.login")}
+            </Button>
           </div>
 
           {/* Mobile Navigation */}
@@ -140,6 +148,15 @@ const Index = () => {
                     >
                       <Crown className="w-5 h-5 mr-3" />
                       {t("nav.pricing")}
+                    </Button>
+                    <div className="h-px bg-border my-2" />
+                    <Button
+                      variant="outline"
+                      onClick={() => handleExternalNav("/auth")}
+                      className="w-full justify-start h-12 border-primary/50"
+                    >
+                      <User className="w-5 h-5 mr-3" />
+                      {t("nav.login")}
                     </Button>
                   </div>
                 </div>
