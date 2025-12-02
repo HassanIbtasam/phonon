@@ -28,9 +28,10 @@ export const NavHeader = ({
 }: NavHeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
+  const isRTL = language === "ar";
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -100,7 +101,7 @@ export const NavHeader = ({
               onClick={item.onClick}
               className={item.isActive ? "bg-gradient-primary" : ""}
             >
-              <item.icon className="w-4 h-4 mr-2" />
+              <item.icon className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
               {t(item.labelKey)}
             </Button>
           ))}
@@ -111,7 +112,7 @@ export const NavHeader = ({
             onClick={() => navigate("/link-analyzer")}
             className={isActivePage("/link-analyzer") ? "bg-gradient-primary" : ""}
           >
-            <LinkIcon className="w-4 h-4 mr-2" />
+            <LinkIcon className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
             {t("nav.linkAnalyzer")}
           </Button>
           <Button 
@@ -119,7 +120,7 @@ export const NavHeader = ({
             onClick={() => navigate("/subscriptions")}
             className={isActivePage("/subscriptions") ? "bg-gradient-primary" : ""}
           >
-            <Crown className="w-4 h-4 mr-2" />
+            <Crown className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
             {t("nav.pricing")}
           </Button>
           {user ? (
@@ -129,7 +130,7 @@ export const NavHeader = ({
                 onClick={() => navigate("/history")}
                 className="border-primary/50"
               >
-                <User className="w-4 h-4 mr-2" />
+                <User className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
                 {t("nav.myAccount")}
               </Button>
               <Button
@@ -137,7 +138,7 @@ export const NavHeader = ({
                 onClick={handleLogout}
                 className="border-primary/50 hover:bg-primary/10"
               >
-                <LogOut className="w-4 h-4 mr-2" />
+                <LogOut className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
                 {t("nav.logout")}
               </Button>
             </>
@@ -147,7 +148,7 @@ export const NavHeader = ({
               onClick={() => navigate("/auth")}
               className={isActivePage("/auth") ? "bg-gradient-primary" : "border-primary/50 hover:bg-primary/10"}
             >
-              <User className="w-4 h-4 mr-2" />
+              <User className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
               {t("nav.login")}
             </Button>
           )}
@@ -163,7 +164,7 @@ export const NavHeader = ({
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[280px] bg-background border-border p-0">
+            <SheetContent side={isRTL ? "left" : "right"} className="w-[280px] bg-background border-border p-0">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-4 border-b border-border">
                   <span className="font-display font-bold text-lg">{t("nav.menu")}</span>
@@ -180,7 +181,7 @@ export const NavHeader = ({
                       }}
                       className={`w-full justify-start h-12 ${item.isActive ? "bg-gradient-primary" : ""}`}
                     >
-                      <item.icon className="w-5 h-5 mr-3" />
+                      <item.icon className="w-5 h-5 ltr:mr-3 rtl:ml-3" />
                       {t(item.labelKey)}
                     </Button>
                   ))}
@@ -193,7 +194,7 @@ export const NavHeader = ({
                     onClick={() => handleExternalNav("/link-analyzer")}
                     className={`w-full justify-start h-12 ${isActivePage("/link-analyzer") ? "bg-gradient-primary" : ""}`}
                   >
-                    <LinkIcon className="w-5 h-5 mr-3" />
+                    <LinkIcon className="w-5 h-5 ltr:mr-3 rtl:ml-3" />
                     {t("nav.linkAnalyzer")}
                   </Button>
                   <Button
@@ -201,7 +202,7 @@ export const NavHeader = ({
                     onClick={() => handleExternalNav("/subscriptions")}
                     className={`w-full justify-start h-12 ${isActivePage("/subscriptions") ? "bg-gradient-primary" : ""}`}
                   >
-                    <Crown className="w-5 h-5 mr-3" />
+                    <Crown className="w-5 h-5 ltr:mr-3 rtl:ml-3" />
                     {t("nav.pricing")}
                   </Button>
                   <div className="h-px bg-border my-2" />
@@ -212,7 +213,7 @@ export const NavHeader = ({
                         onClick={() => handleExternalNav("/history")}
                         className="w-full justify-start h-12"
                       >
-                        <User className="w-5 h-5 mr-3" />
+                        <User className="w-5 h-5 ltr:mr-3 rtl:ml-3" />
                         {t("nav.myAccount")}
                       </Button>
                       <Button
@@ -220,7 +221,7 @@ export const NavHeader = ({
                         onClick={handleLogout}
                         className="w-full justify-start h-12 border-primary/50"
                       >
-                        <LogOut className="w-5 h-5 mr-3" />
+                        <LogOut className="w-5 h-5 ltr:mr-3 rtl:ml-3" />
                         {t("nav.logout")}
                       </Button>
                     </>
@@ -230,7 +231,7 @@ export const NavHeader = ({
                       onClick={() => handleExternalNav("/auth")}
                       className={`w-full justify-start h-12 ${isActivePage("/auth") ? "bg-gradient-primary" : "border-primary/50"}`}
                     >
-                      <User className="w-5 h-5 mr-3" />
+                      <User className="w-5 h-5 ltr:mr-3 rtl:ml-3" />
                       {t("nav.login")}
                     </Button>
                   )}
