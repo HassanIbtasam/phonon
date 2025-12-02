@@ -95,7 +95,7 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen bg-background">
-      <NavHeader variant="full" showBackButton />
+      <NavHeader />
 
       <div className="pt-20 flex items-center justify-center min-h-screen px-4">
         <Card className="w-full max-w-md p-8 bg-gradient-card border-border shadow-card">
