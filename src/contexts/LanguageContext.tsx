@@ -28,6 +28,7 @@ const translations = {
     "hero.feature2.desc": "Real-time scam detection",
     "hero.feature3.title": "Privacy First",
     "hero.feature3.desc": "Your data stays secure",
+    "hero.betaDisclaimer": "This app is currently in early testing phase. You may encounter bugs, inaccuracies, or unexpected behavior. We appreciate your patience as we continue to improve.",
     
     // Scanner
     "scanner.title": "Scan a Message",
@@ -312,6 +313,7 @@ const translations = {
     "hero.feature2.desc": "كشف الاحتيال في الوقت الفعلي",
     "hero.feature3.title": "الخصوصية أولاً",
     "hero.feature3.desc": "بياناتك تبقى آمنة",
+    "hero.betaDisclaimer": "هذا التطبيق حالياً في مرحلة الاختبار المبكر. قد تواجه أخطاء أو عدم دقة أو سلوك غير متوقع. نقدر صبرك بينما نواصل التحسين.",
     
     // Scanner
     "scanner.title": "امسح رسالة",

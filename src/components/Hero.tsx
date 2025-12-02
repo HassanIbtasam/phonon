@@ -1,4 +1,5 @@
-import { Zap, Lock, ScanLine, Shield } from "lucide-react";
+import { Zap, Lock, ScanLine, Shield, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import phononLogo from "@/assets/phonon-logo.png";
@@ -19,6 +20,16 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto text-center space-y-6 md:space-y-8 py-12 md:py-20">
+        {/* Beta Disclaimer */}
+        <div className="animate-in fade-in slide-in-from-top duration-500 px-2">
+          <Alert className="max-w-2xl mx-auto bg-warning/10 border-warning/30 text-left">
+            <AlertTriangle className="h-4 w-4 text-warning" />
+            <AlertDescription className="text-xs md:text-sm text-muted-foreground">
+              {t("hero.betaDisclaimer")}
+            </AlertDescription>
+          </Alert>
+        </div>
+
         {/* Logo */}
         <div className="flex justify-center mb-4 md:mb-6 animate-in fade-in slide-in-from-top duration-700">
           <div className="relative">
