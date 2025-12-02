@@ -191,14 +191,15 @@ export const MessageScanner = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 space-y-8">
-      <div className="text-center space-y-4">
-        <div className="flex justify-end gap-2 mb-4">
+    <div className="max-w-4xl mx-auto px-4 py-6 md:py-12 space-y-6 md:space-y-8">
+      <div className="text-center space-y-3 md:space-y-4">
+        <div className="flex justify-end gap-2 mb-3 md:mb-4">
           {user && (
             <Button
               onClick={() => navigate("/history")}
               variant="outline"
               size="sm"
+              className="text-xs md:text-sm"
             >
               {t("nav.myHistory")}
             </Button>
@@ -208,9 +209,9 @@ export const MessageScanner = () => {
               onClick={handleLogout}
               variant="outline"
               size="sm"
-              className="gap-2"
+              className="gap-1 md:gap-2 text-xs md:text-sm"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-3 h-3 md:w-4 md:h-4" />
               {t("nav.signOut")}
             </Button>
           ) : (
@@ -218,42 +219,43 @@ export const MessageScanner = () => {
               onClick={() => navigate("/auth")}
               variant="outline"
               size="sm"
+              className="text-xs md:text-sm"
             >
               {t("nav.signIn")}
             </Button>
           )}
         </div>
-        <h2 className="font-display text-4xl font-bold">{t("scanner.title")}</h2>
-        <p className="text-muted-foreground">{t("scanner.subtitle")}</p>
+        <h2 className="font-display text-2xl md:text-4xl font-bold">{t("scanner.title")}</h2>
+        <p className="text-muted-foreground text-sm md:text-base">{t("scanner.subtitle")}</p>
       </div>
 
       <Tabs defaultValue="text" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="text" className="gap-2">
-            <MessageSquare className="w-4 h-4" />
+        <TabsList className="grid w-full grid-cols-2 mb-4 md:mb-6 h-10 md:h-12">
+          <TabsTrigger value="text" className="gap-1 md:gap-2 text-xs md:text-sm">
+            <MessageSquare className="w-3 h-3 md:w-4 md:h-4" />
             {t("scanner.textTab")}
           </TabsTrigger>
-          <TabsTrigger value="screenshot" className="gap-2">
-            <Image className="w-4 h-4" />
+          <TabsTrigger value="screenshot" className="gap-1 md:gap-2 text-xs md:text-sm">
+            <Image className="w-3 h-3 md:w-4 md:h-4" />
             {t("scanner.screenshotTab")}
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="text" className="space-y-8">
-          <Card className="p-6 bg-gradient-card border-border shadow-card space-y-6">
-        <div className="space-y-3">
-          <label className="text-sm font-medium">{t("scanner.label")}</label>
+        <TabsContent value="text" className="space-y-6 md:space-y-8">
+          <Card className="p-4 md:p-6 bg-gradient-card border-border shadow-card space-y-4 md:space-y-6">
+        <div className="space-y-2 md:space-y-3">
+          <label className="text-xs md:text-sm font-medium">{t("scanner.label")}</label>
           <Textarea
             placeholder={t("scanner.placeholder")}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            className="min-h-[200px] bg-secondary border-border resize-none"
+            className="min-h-[150px] md:min-h-[200px] bg-secondary border-border resize-none text-sm md:text-base"
           />
         </div>
 
-        <div className="space-y-3">
-          <label className="text-sm font-medium flex items-center gap-2">
-            <Phone className="w-4 h-4" />
+        <div className="space-y-2 md:space-y-3">
+          <label className="text-xs md:text-sm font-medium flex items-center gap-2">
+            <Phone className="w-3 h-3 md:w-4 md:h-4" />
             {t("scanner.phoneLabel")}
           </label>
           <Input
@@ -261,7 +263,7 @@ export const MessageScanner = () => {
             placeholder={t("scanner.phonePlaceholder")}
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
-            className="bg-secondary border-border"
+            className="bg-secondary border-border h-10 md:h-11 text-sm md:text-base"
           />
         </div>
 
