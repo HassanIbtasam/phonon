@@ -30,6 +30,7 @@ interface UserSubscription {
 }
 
 const Subscriptions = () => {
+  // Subscriptions page component
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [userSubscription, setUserSubscription] = useState<UserSubscription | null>(null);
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
