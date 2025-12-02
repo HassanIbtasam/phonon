@@ -4,12 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Mail, Lock, Loader2, ArrowLeft } from "lucide-react";
+import { Shield, Mail, Lock, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import phononLogo from "@/assets/phonon-logo.png";
+import { NavHeader } from "@/components/NavHeader";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -96,150 +95,127 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex items-center justify-between">
-          <button 
-            onClick={() => navigate("/")}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
-          >
-            <img src={phononLogo} alt="Phonon Logo" className="w-8 h-8 object-contain" />
-            <span className="font-display font-bold text-lg md:text-xl">{t("nav.title")}</span>
-          </button>
-          
-          <div className="flex items-center gap-2">
-            <LanguageSwitcher />
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/")}
-              size="sm"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">{t("nav.backToHome")}</span>
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <NavHeader variant="full" showBackButton />
 
       <div className="pt-20 flex items-center justify-center min-h-screen px-4">
         <Card className="w-full max-w-md p-8 bg-gradient-card border-border shadow-card">
-        <div className="flex flex-col items-center space-y-4 mb-8">
-          <Shield className="w-16 h-16 text-primary" />
-          <h1 className="font-display text-3xl font-bold text-center">{t("auth.title")}</h1>
-          <p className="text-muted-foreground text-center">
-            {t("auth.subtitle")}
-          </p>
-        </div>
+          <div className="flex flex-col items-center space-y-4 mb-8">
+            <Shield className="w-16 h-16 text-primary" />
+            <h1 className="font-display text-3xl font-bold text-center">{t("auth.title")}</h1>
+            <p className="text-muted-foreground text-center">
+              {t("auth.subtitle")}
+            </p>
+          </div>
 
-        <Tabs defaultValue="signin" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">{t("auth.signIn")}</TabsTrigger>
-            <TabsTrigger value="signup">{t("auth.signUp")}</TabsTrigger>
-          </TabsList>
+          <Tabs defaultValue="signin" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="signin">{t("auth.signIn")}</TabsTrigger>
+              <TabsTrigger value="signup">{t("auth.signUp")}</TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="signin">
-            <form onSubmit={handleSignIn} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  {t("auth.email")}
-                </label>
-                <Input
-                  type="email"
-                  placeholder={t("auth.emailPlaceholder")}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="bg-secondary border-border"
-                />
-              </div>
+            <TabsContent value="signin">
+              <form onSubmit={handleSignIn} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    {t("auth.email")}
+                  </label>
+                  <Input
+                    type="email"
+                    placeholder={t("auth.emailPlaceholder")}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="bg-secondary border-border"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  {t("auth.password")}
-                </label>
-                <Input
-                  type="password"
-                  placeholder={t("auth.passwordPlaceholder")}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  className="bg-secondary border-border"
-                />
-              </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    {t("auth.password")}
+                  </label>
+                  <Input
+                    type="password"
+                    placeholder={t("auth.passwordPlaceholder")}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="bg-secondary border-border"
+                  />
+                </div>
 
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-gradient-primary hover:shadow-glow transition-all"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {t("auth.signingIn")}
-                  </>
-                ) : (
-                  t("auth.signIn")
-                )}
-              </Button>
-            </form>
-          </TabsContent>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-primary hover:shadow-glow transition-all"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      {t("auth.signingIn")}
+                    </>
+                  ) : (
+                    t("auth.signIn")
+                  )}
+                </Button>
+              </form>
+            </TabsContent>
 
-          <TabsContent value="signup">
-            <form onSubmit={handleSignUp} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  {t("auth.email")}
-                </label>
-                <Input
-                  type="email"
-                  placeholder={t("auth.emailPlaceholder")}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="bg-secondary border-border"
-                />
-              </div>
+            <TabsContent value="signup">
+              <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    {t("auth.email")}
+                  </label>
+                  <Input
+                    type="email"
+                    placeholder={t("auth.emailPlaceholder")}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="bg-secondary border-border"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  {t("auth.password")}
-                </label>
-                <Input
-                  type="password"
-                  placeholder={t("auth.passwordPlaceholder")}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  className="bg-secondary border-border"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {t("auth.passwordRequirement")}
-                </p>
-              </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    {t("auth.password")}
+                  </label>
+                  <Input
+                    type="password"
+                    placeholder={t("auth.passwordPlaceholder")}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="bg-secondary border-border"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {t("auth.passwordRequirement")}
+                  </p>
+                </div>
 
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-gradient-primary hover:shadow-glow transition-all"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {t("auth.creatingAccount")}
-                  </>
-                ) : (
-                  t("auth.signUp")
-                )}
-              </Button>
-            </form>
-          </TabsContent>
-        </Tabs>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-primary hover:shadow-glow transition-all"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      {t("auth.creatingAccount")}
+                    </>
+                  ) : (
+                    t("auth.signUp")
+                  )}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
         </Card>
       </div>
     </div>

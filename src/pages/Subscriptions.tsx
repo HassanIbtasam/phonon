@@ -5,10 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { Check, Zap, Crown, Rocket, Gift, ArrowLeft } from "lucide-react";
+import { NavHeader } from "@/components/NavHeader";
+import { Check, Zap, Crown, Rocket, Gift } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import phononLogo from "@/assets/phonon-logo.png";
 
 interface SubscriptionPlan {
   id: string;
@@ -30,7 +29,6 @@ interface UserSubscription {
 }
 
 const Subscriptions = () => {
-  // Subscriptions page component
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [userSubscription, setUserSubscription] = useState<UserSubscription | null>(null);
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
@@ -45,7 +43,6 @@ const Subscriptions = () => {
 
   const loadPlansAndSubscription = async () => {
     try {
-      // Load plans
       const { data: plansData, error: plansError } = await supabase
         .from("subscription_plans")
         .select("*")
@@ -54,7 +51,6 @@ const Subscriptions = () => {
       if (plansError) throw plansError;
       setPlans(plansData || []);
 
-      // Load user subscription if authenticated
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: subData } = await supabase
@@ -105,7 +101,6 @@ const Subscriptions = () => {
       return;
     }
 
-    // For now, just show a success message
     toast({
       title: t("pricing.planSelected"),
       description: t("pricing.planSelectedDesc").replace("{tier}", tier),
@@ -143,42 +138,10 @@ const Subscriptions = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Header */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/50">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-5 flex items-center justify-between">
-          <button 
-            onClick={() => navigate("/")}
-            className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-all cursor-pointer group"
-          >
-            <img src={phononLogo} alt="Phonon AI" className="w-8 h-8 md:w-10 md:h-10 object-contain group-hover:scale-110 transition-transform" />
-            <span className="font-display font-bold text-lg md:text-xl text-foreground">{t("nav.title")}</span>
-          </button>
-          
-          <div className="flex items-center gap-2 md:gap-3">
-            <LanguageSwitcher />
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/")}
-              size="sm"
-              className="font-medium md:hidden"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/")}
-              size="lg"
-              className="font-medium hidden md:flex"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              {t("pricing.backToHome")}
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <NavHeader variant="full" showBackButton />
 
       {/* Content */}
-      <div className="pt-20 md:pt-36 pb-12 md:pb-24 px-4 md:px-6">
+      <div className="pt-20 md:pt-28 pb-12 md:pb-24 px-4 md:px-6">
         <div className="max-w-7xl mx-auto">
           {/* Hero Section */}
           <div className="text-center mb-8 md:mb-16 animate-in fade-in slide-in-from-top duration-700">
@@ -322,7 +285,6 @@ const Subscriptions = () => {
               );
             })}
           </div>
-
         </div>
       </div>
     </div>
