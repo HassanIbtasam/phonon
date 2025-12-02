@@ -15,6 +15,7 @@ const translations = {
     "nav.scanner": "Scanner",
     "nav.dashboard": "Dashboard",
     "nav.menu": "Menu",
+    "nav.login": "Log In",
     
     // Hero
     "hero.title": "Phonon",
@@ -523,6 +524,7 @@ const translations = {
     "nav.myHistory": "سجلي",
     "nav.signOut": "تسجيل الخروج",
     "nav.signIn": "تسجيل الدخول",
+    "nav.login": "تسجيل الدخول",
     "nav.backToHome": "العودة للصفحة الرئيسية",
     "nav.pricing": "الأسعار",
     
