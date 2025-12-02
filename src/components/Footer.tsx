@@ -30,6 +30,7 @@ export const Footer = () => {
                 support@phonon.live
               </a>
             </p>
+            <span className="hidden sm:inline text-border">|</span>
             <a 
               href="https://instagram.com/phonon.live" 
               target="_blank" 
