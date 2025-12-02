@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { NavHeader } from "@/components/NavHeader";
+import { Footer } from "@/components/Footer";
 import { Check, Zap, Crown, Rocket, Gift } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -287,6 +288,9 @@ const Subscriptions = () => {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

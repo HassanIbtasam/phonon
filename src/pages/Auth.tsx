@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { NavHeader } from "@/components/NavHeader";
+import { Footer } from "@/components/Footer";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -218,6 +219,9 @@ export default function Auth() {
           </Tabs>
         </Card>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
