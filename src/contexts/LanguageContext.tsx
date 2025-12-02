@@ -293,6 +293,11 @@ const translations = {
     "pricing.errorDesc": "Failed to load subscription plans. Please try again.",
     "pricing.unlimited": "Unlimited",
     "pricing.loading": "Loading...",
+    
+    // Feedback
+    "feedback.title": "We'd Love Your Feedback",
+    "feedback.description": "Help us improve Phonon AI by sharing your thoughts, reporting bugs, or suggesting new features.",
+    "feedback.emailUs": "Email us at",
   },
   ar: {
     // Navigation
@@ -578,6 +583,11 @@ const translations = {
     "pricing.errorDesc": "فشل تحميل خطط الاشتراك. يرجى المحاولة مرة أخرى.",
     "pricing.unlimited": "غير محدود",
     "pricing.loading": "جارٍ التحميل...",
+    
+    // Feedback
+    "feedback.title": "نحب سماع ملاحظاتك",
+    "feedback.description": "ساعدنا في تحسين فونون AI بمشاركة أفكارك أو الإبلاغ عن الأخطاء أو اقتراح ميزات جديدة.",
+    "feedback.emailUs": "راسلنا على",
   },
 };
 
