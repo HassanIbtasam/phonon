@@ -6,6 +6,7 @@ import { Shield, AlertTriangle, CheckCircle2, Clock, Phone } from "lucide-react"
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { NavHeader } from "@/components/NavHeader";
+import { Footer } from "@/components/Footer";
 import type { User } from "@supabase/supabase-js";
 
 interface ScanHistoryItem {
@@ -182,6 +183,9 @@ export default function History() {
           )}
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
