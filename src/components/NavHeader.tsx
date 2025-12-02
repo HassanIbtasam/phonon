@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ScanLine, LayoutDashboard, Radio, Link as LinkIcon, Crown, Menu, User } from "lucide-react";
+import { ScanLine, LayoutDashboard, Radio, Link as LinkIcon, Crown, Menu, User, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { User as SupabaseUser } from "@supabase/supabase-js";
 import phononLogo from "@/assets/phonon-logo.png";
 
 interface NavItem {
@@ -25,9 +27,30 @@ export const NavHeader = ({
   onLogoClick
 }: NavHeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setMobileMenuOpen(false);
+    navigate("/");
+  };
 
   const handleLogoClick = () => {
     if (onLogoClick) {
@@ -99,14 +122,35 @@ export const NavHeader = ({
             <Crown className="w-4 h-4 mr-2" />
             {t("nav.pricing")}
           </Button>
-          <Button
-            variant={isActivePage("/auth") ? "default" : "outline"}
-            onClick={() => navigate("/auth")}
-            className={isActivePage("/auth") ? "bg-gradient-primary" : "border-primary/50 hover:bg-primary/10"}
-          >
-            <User className="w-4 h-4 mr-2" />
-            {t("nav.login")}
-          </Button>
+          {user ? (
+            <>
+              <Button
+                variant="ghost"
+                onClick={() => navigate("/history")}
+                className="border-primary/50"
+              >
+                <User className="w-4 h-4 mr-2" />
+                {t("nav.myAccount")}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleLogout}
+                className="border-primary/50 hover:bg-primary/10"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                {t("nav.logout")}
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant={isActivePage("/auth") ? "default" : "outline"}
+              onClick={() => navigate("/auth")}
+              className={isActivePage("/auth") ? "bg-gradient-primary" : "border-primary/50 hover:bg-primary/10"}
+            >
+              <User className="w-4 h-4 mr-2" />
+              {t("nav.login")}
+            </Button>
+          )}
         </div>
 
         {/* Mobile Navigation */}
@@ -161,14 +205,35 @@ export const NavHeader = ({
                     {t("nav.pricing")}
                   </Button>
                   <div className="h-px bg-border my-2" />
-                  <Button
-                    variant={isActivePage("/auth") ? "default" : "outline"}
-                    onClick={() => handleExternalNav("/auth")}
-                    className={`w-full justify-start h-12 ${isActivePage("/auth") ? "bg-gradient-primary" : "border-primary/50"}`}
-                  >
-                    <User className="w-5 h-5 mr-3" />
-                    {t("nav.login")}
-                  </Button>
+                  {user ? (
+                    <>
+                      <Button
+                        variant="ghost"
+                        onClick={() => handleExternalNav("/history")}
+                        className="w-full justify-start h-12"
+                      >
+                        <User className="w-5 h-5 mr-3" />
+                        {t("nav.myAccount")}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={handleLogout}
+                        className="w-full justify-start h-12 border-primary/50"
+                      >
+                        <LogOut className="w-5 h-5 mr-3" />
+                        {t("nav.logout")}
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      variant={isActivePage("/auth") ? "default" : "outline"}
+                      onClick={() => handleExternalNav("/auth")}
+                      className={`w-full justify-start h-12 ${isActivePage("/auth") ? "bg-gradient-primary" : "border-primary/50"}`}
+                    >
+                      <User className="w-5 h-5 mr-3" />
+                      {t("nav.login")}
+                    </Button>
+                  )}
                 </div>
               </div>
             </SheetContent>
