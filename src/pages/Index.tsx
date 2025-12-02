@@ -32,7 +32,6 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <NavHeader 
-        variant="full" 
         navItems={navItems}
         onLogoClick={() => setCurrentView("hero")}
       />

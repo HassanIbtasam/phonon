@@ -138,7 +138,7 @@ const Subscriptions = () => {
 
   return (
     <div className="min-h-screen">
-      <NavHeader variant="full" showBackButton />
+      <NavHeader />
 
       {/* Content */}
       <div className="pt-20 md:pt-28 pb-12 md:pb-24 px-4 md:px-6">

@@ -7,7 +7,7 @@ const LinkAnalyzer = () => {
 
   return (
     <div className="min-h-screen">
-      <NavHeader variant="full" showBackButton />
+      <NavHeader />
 
       {/* Content */}
       <div className="pt-20">

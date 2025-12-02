@@ -112,7 +112,7 @@ export default function History() {
 
   return (
     <div className="min-h-screen bg-background">
-      <NavHeader variant="full" showBackButton />
+      <NavHeader />
 
       <div className="pt-20 pb-12 px-4">
         <div className="max-w-4xl mx-auto space-y-8">
