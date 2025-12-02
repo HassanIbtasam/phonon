@@ -14,6 +14,7 @@ const translations = {
     "nav.title": "Phonon AI",
     "nav.scanner": "Scanner",
     "nav.dashboard": "Dashboard",
+    "nav.menu": "Menu",
     
     // Hero
     "hero.title": "Phonon",
@@ -291,6 +292,7 @@ const translations = {
     "nav.title": "فونون AI",
     "nav.scanner": "الماسح",
     "nav.dashboard": "لوحة التحكم",
+    "nav.menu": "القائمة",
     
     // Hero
     "hero.title": "فونون",

@@ -144,22 +144,30 @@ const Subscriptions = () => {
     <div className="min-h-screen">
       {/* Header */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/50">
-        <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-5 flex items-center justify-between">
           <button 
             onClick={() => navigate("/")}
-            className="flex items-center gap-3 hover:opacity-80 transition-all cursor-pointer group"
+            className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-all cursor-pointer group"
           >
-            <img src={phononLogo} alt="Phonon AI" className="w-10 h-10 object-contain group-hover:scale-110 transition-transform" />
-            <span className="font-display font-bold text-xl text-foreground">{t("nav.title")}</span>
+            <img src={phononLogo} alt="Phonon AI" className="w-8 h-8 md:w-10 md:h-10 object-contain group-hover:scale-110 transition-transform" />
+            <span className="font-display font-bold text-lg md:text-xl text-foreground">{t("nav.title")}</span>
           </button>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             <LanguageSwitcher />
             <Button
               variant="ghost"
               onClick={() => navigate("/")}
+              size="sm"
+              className="font-medium md:hidden"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/")}
               size="lg"
-              className="font-medium"
+              className="font-medium hidden md:flex"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               {t("pricing.backToHome")}
@@ -169,39 +177,39 @@ const Subscriptions = () => {
       </nav>
 
       {/* Content */}
-      <div className="pt-36 pb-24 px-6">
+      <div className="pt-20 md:pt-36 pb-12 md:pb-24 px-4 md:px-6">
         <div className="max-w-7xl mx-auto">
           {/* Hero Section */}
-          <div className="text-center mb-16 animate-in fade-in slide-in-from-top duration-700">
-            <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 leading-tight">
+          <div className="text-center mb-8 md:mb-16 animate-in fade-in slide-in-from-top duration-700">
+            <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 md:mb-6 leading-tight">
               <span className="bg-gradient-primary bg-clip-text text-transparent">
                 {t("pricing.title")}
               </span>
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-2">
               {t("pricing.subtitle")}
             </p>
           </div>
 
           {/* Billing Toggle */}
-          <div className="flex justify-center mb-16 animate-in fade-in duration-700 delay-100">
-            <div className="bg-card/80 backdrop-blur-sm border-2 border-border/50 rounded-full p-1.5 flex gap-2 shadow-lg">
+          <div className="flex justify-center mb-8 md:mb-16 animate-in fade-in duration-700 delay-100">
+            <div className="bg-card/80 backdrop-blur-sm border-2 border-border/50 rounded-full p-1 md:p-1.5 flex gap-1 md:gap-2 shadow-lg">
               <Button
                 variant={billingPeriod === "monthly" ? "default" : "ghost"}
                 onClick={() => setBillingPeriod("monthly")}
-                size="lg"
-                className={billingPeriod === "monthly" ? "bg-gradient-primary rounded-full px-8 font-semibold" : "rounded-full px-8 font-medium"}
+                size="sm"
+                className={`text-xs md:text-sm ${billingPeriod === "monthly" ? "bg-gradient-primary rounded-full px-4 md:px-8 font-semibold" : "rounded-full px-4 md:px-8 font-medium"}`}
               >
                 {t("pricing.monthly")}
               </Button>
               <Button
                 variant={billingPeriod === "yearly" ? "default" : "ghost"}
                 onClick={() => setBillingPeriod("yearly")}
-                size="lg"
-                className={billingPeriod === "yearly" ? "bg-gradient-primary rounded-full px-8 font-semibold" : "rounded-full px-8 font-medium"}
+                size="sm"
+                className={`text-xs md:text-sm ${billingPeriod === "yearly" ? "bg-gradient-primary rounded-full px-4 md:px-8 font-semibold" : "rounded-full px-4 md:px-8 font-medium"}`}
               >
                 {t("pricing.yearly")}
-                <Badge className="ml-2 bg-success text-success-foreground font-semibold px-2">
+                <Badge className="ml-1 md:ml-2 bg-success text-success-foreground font-semibold px-1.5 md:px-2 text-xs">
                   {t("pricing.save")}
                 </Badge>
               </Button>
@@ -209,7 +217,7 @@ const Subscriptions = () => {
           </div>
 
           {/* Plans Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto animate-in fade-in duration-700 delay-200">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 max-w-6xl mx-auto animate-in fade-in duration-700 delay-200">
             {plans.map((plan, index) => {
               const isCurrentPlan = userSubscription?.plan_id === plan.id;
               const isPro = plan.tier.toLowerCase() === "pro";
