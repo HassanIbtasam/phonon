@@ -1,4 +1,4 @@
-import { Mail } from "lucide-react";
+import { Mail, Instagram } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export const Footer = () => {
@@ -20,15 +20,26 @@ export const Footer = () => {
           <p className="text-muted-foreground mb-6">
             {t("feedback.description")}
           </p>
-          <p className="text-sm text-muted-foreground">
-            {t("feedback.emailUs")}{" "}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-muted-foreground">
+            <p>
+              {t("feedback.emailUs")}{" "}
+              <a 
+                href="mailto:support@phonon.live" 
+                className="text-primary hover:underline font-medium"
+              >
+                support@phonon.live
+              </a>
+            </p>
             <a 
-              href="mailto:support@phonon.live" 
-              className="text-primary hover:underline font-medium"
+              href="https://instagram.com/phonon.live" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-primary hover:underline font-medium"
             >
-              support@phonon.live
+              <Instagram className="w-4 h-4" />
+              @phonon.live
             </a>
-          </p>
+          </div>
         </div>
       </section>
 
