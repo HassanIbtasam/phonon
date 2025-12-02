@@ -48,13 +48,25 @@ Deno.serve(async (req) => {
     if (subscription && subscription.subscription_plans) {
       plan = subscription.subscription_plans;
     } else {
-      // Default to basic plan
-      const { data: basicPlan } = await supabaseClient
+      // Default to free plan
+      const { data: freePlan } = await supabaseClient
         .from('subscription_plans')
         .select('*')
-        .eq('tier', 'basic')
-        .single();
-      plan = basicPlan;
+        .eq('tier', 'free')
+        .maybeSingle();
+      plan = freePlan;
+    }
+
+    // If no plan found, return default limits
+    if (!plan) {
+      plan = {
+        name: 'Basic',
+        tier: 'free',
+        text_analysis_limit: 10,
+        screenshot_analysis_limit: 5,
+        link_analysis_limit: 10,
+        live_call_limit: 0,
+      };
     }
 
     // Get usage records for current period
