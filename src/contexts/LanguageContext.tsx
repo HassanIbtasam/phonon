@@ -48,6 +48,9 @@ const translations = {
     "scanner.flagError": "Failed to flag number",
     "scanner.textTab": "Text Message",
     "scanner.screenshotTab": "Screenshot",
+    "scanner.pullToRefresh": "Pull down to clear",
+    "scanner.cleared": "Cleared",
+    "scanner.clearedDesc": "Form has been reset",
     
     // Screenshot Scanner
     "screenshot.title": "Screenshot Analysis",
@@ -86,6 +89,9 @@ const translations = {
     "dashboard.lowRisk": "Low Risk",
     "dashboard.recentScans": "Recent Scans",
     "dashboard.noScans": "No scans yet. Start by scanning a message above.",
+    "dashboard.pullToRefresh": "Pull down to refresh",
+    "dashboard.refreshed": "Refreshed",
+    "dashboard.refreshedDesc": "Dashboard data updated",
     
     // Footer
     "footer.copyright": "© 2025 Phonon AI. Protecting users with advanced AI detection.",
@@ -326,6 +332,9 @@ const translations = {
     "scanner.flagError": "فشل وضع علامة على الرقم",
     "scanner.textTab": "رسالة نصية",
     "scanner.screenshotTab": "لقطة شاشة",
+    "scanner.pullToRefresh": "اسحب للأسفل للمسح",
+    "scanner.cleared": "تم المسح",
+    "scanner.clearedDesc": "تم إعادة تعيين النموذج",
     
     // Screenshot Scanner
     "screenshot.title": "تحليل لقطة الشاشة",
@@ -364,6 +373,9 @@ const translations = {
     "dashboard.lowRisk": "خطر منخفض",
     "dashboard.recentScans": "عمليات المسح الأخيرة",
     "dashboard.noScans": "لا توجد عمليات مسح بعد. ابدأ بمسح رسالة أعلاه.",
+    "dashboard.pullToRefresh": "اسحب للأسفل للتحديث",
+    "dashboard.refreshed": "تم التحديث",
+    "dashboard.refreshedDesc": "تم تحديث بيانات لوحة التحكم",
     
     // Footer
     "footer.copyright": "© 2025 فونون AI. حماية المستخدمين بالكشف المتقدم بالذكاء الاصطناعي.",

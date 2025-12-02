@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { ScreenshotScanner } from "./ScreenshotScanner";
 import { useUsageTracking } from "@/hooks/use-usage-tracking";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import type { User } from "@supabase/supabase-js";
 
 interface ScanResult {
@@ -190,7 +191,19 @@ export const MessageScanner = () => {
     }
   };
 
+  const handleRefresh = useCallback(async () => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    setResult(null);
+    setMessage("");
+    setPhoneNumber("");
+    toast({
+      title: t("scanner.cleared") || "Cleared",
+      description: t("scanner.clearedDesc") || "Form has been reset",
+    });
+  }, [toast, t]);
+
   return (
+    <PullToRefresh onRefresh={handleRefresh} className="min-h-[calc(100vh-5rem)]">
     <div className="max-w-4xl mx-auto px-4 py-6 md:py-12 space-y-6 md:space-y-8">
       <div className="text-center space-y-3 md:space-y-4">
         <div className="flex justify-end gap-2 mb-3 md:mb-4">
@@ -227,6 +240,7 @@ export const MessageScanner = () => {
         </div>
         <h2 className="font-display text-2xl md:text-4xl font-bold">{t("scanner.title")}</h2>
         <p className="text-muted-foreground text-sm md:text-base">{t("scanner.subtitle")}</p>
+        <p className="text-xs text-muted-foreground/70 md:hidden">{t("scanner.pullToRefresh") || "Pull down to clear"}</p>
       </div>
 
       <Tabs defaultValue="text" className="w-full">
@@ -339,5 +353,6 @@ export const MessageScanner = () => {
         </TabsContent>
       </Tabs>
     </div>
+    </PullToRefresh>
   );
 };
