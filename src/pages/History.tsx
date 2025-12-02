@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Shield, AlertTriangle, CheckCircle2, Clock, Phone } from "lucide-react";
+import { Shield, AlertTriangle, CheckCircle2, Clock, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { NavHeader } from "@/components/NavHeader";
 import type { User } from "@supabase/supabase-js";
 
 interface ScanHistoryItem {
@@ -110,84 +111,76 @@ export default function History() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="flex items-center gap-4">
-          <Button
-            onClick={() => navigate("/")}
-            variant="ghost"
-            size="sm"
-            className="gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            {t("history.back")}
-          </Button>
-        </div>
+    <div className="min-h-screen bg-background">
+      <NavHeader variant="full" showBackButton />
 
-        <div className="text-center space-y-2">
-          <h1 className="font-display text-4xl font-bold">{t("history.title")}</h1>
-          <p className="text-muted-foreground">
-            {t("history.subtitle")}
-          </p>
-        </div>
-
-        {isLoading ? (
-          <Card className="p-8 text-center">
-            <p className="text-muted-foreground">{t("history.loading")}</p>
-          </Card>
-        ) : history.length === 0 ? (
-          <Card className="p-8 text-center">
-            <Shield className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-2">{t("history.noScans")}</h3>
-            <p className="text-muted-foreground mb-4">
-              {t("history.noScansDesc")}
+      <div className="pt-20 pb-12 px-4">
+        <div className="max-w-4xl mx-auto space-y-8">
+          <div className="text-center space-y-2">
+            <h1 className="font-display text-4xl font-bold">{t("history.title")}</h1>
+            <p className="text-muted-foreground">
+              {t("history.subtitle")}
             </p>
-            <Button onClick={() => navigate("/")}>
-              {t("history.startScanning")}
-            </Button>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {history.map((item) => (
-              <Card
-                key={item.id}
-                className={`p-6 border-2 ${getRiskColor(item.risk_level)} shadow-card`}
-              >
-                <div className="flex items-start gap-4">
-                  {getRiskIcon(item.risk_level)}
-                  <div className="flex-1 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-lg">
-                        {getRiskLabel(item.risk_level)}
-                      </h3>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="w-4 h-4" />
-                        {new Date(item.scanned_at).toLocaleString()}
+          </div>
+
+          {isLoading ? (
+            <Card className="p-8 text-center">
+              <p className="text-muted-foreground">{t("history.loading")}</p>
+            </Card>
+          ) : history.length === 0 ? (
+            <Card className="p-8 text-center">
+              <Shield className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="font-semibold text-lg mb-2">{t("history.noScans")}</h3>
+              <p className="text-muted-foreground mb-4">
+                {t("history.noScansDesc")}
+              </p>
+              <Button onClick={() => navigate("/")}>
+                {t("history.startScanning")}
+              </Button>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {history.map((item) => (
+                <Card
+                  key={item.id}
+                  className={`p-6 border-2 ${getRiskColor(item.risk_level)} shadow-card`}
+                >
+                  <div className="flex items-start gap-4">
+                    {getRiskIcon(item.risk_level)}
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold text-lg">
+                          {getRiskLabel(item.risk_level)}
+                        </h3>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Clock className="w-4 h-4" />
+                          {new Date(item.scanned_at).toLocaleString()}
+                        </div>
                       </div>
-                    </div>
 
-                    {item.phone_number && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Phone className="w-4 h-4 text-muted-foreground" />
-                        <span className="font-mono">{item.phone_number}</span>
+                      {item.phone_number && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Phone className="w-4 h-4 text-muted-foreground" />
+                          <span className="font-mono">{item.phone_number}</span>
+                        </div>
+                      )}
+
+                      <div className="bg-secondary/50 rounded-lg p-3">
+                        <p className="text-sm text-muted-foreground mb-1">{t("history.messagePreview")}</p>
+                        <p className="text-sm">{item.message_preview}</p>
                       </div>
-                    )}
 
-                    <div className="bg-secondary/50 rounded-lg p-3">
-                      <p className="text-sm text-muted-foreground mb-1">{t("history.messagePreview")}</p>
-                      <p className="text-sm">{item.message_preview}</p>
-                    </div>
-
-                    <div className="pt-2 border-t border-border">
-                      <p className="text-sm text-muted-foreground mb-1">{t("history.analysis")}</p>
-                      <p className="text-sm">{item.reason}</p>
+                      <div className="pt-2 border-t border-border">
+                        <p className="text-sm text-muted-foreground mb-1">{t("history.analysis")}</p>
+                        <p className="text-sm">{item.reason}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
