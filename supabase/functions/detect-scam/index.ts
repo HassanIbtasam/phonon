@@ -15,8 +15,15 @@ serve(async (req) => {
     const { message, phoneNumber, action, status } = await req.json();
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    // Create client with forwarded auth for proper RLS enforcement
+    const authHeader = req.headers.get('Authorization');
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: authHeader ? { Authorization: authHeader } : {},
+      },
+    });
 
     // Handle flagging action
     if (action === 'flag' && phoneNumber) {
@@ -37,20 +44,11 @@ serve(async (req) => {
         );
       }
 
-      // Try to get user ID from JWT if provided (optional)
+      // Try to get user ID from authenticated session
       let userId: string | null = null;
-      const authHeader = req.headers.get('Authorization');
-      if (authHeader) {
-        try {
-          const token = authHeader.replace('Bearer ', '');
-          const { data: { user } } = await supabase.auth.getUser(token);
-          if (user) {
-            userId = user.id;
-          }
-        } catch (error) {
-          console.log('Optional auth header provided but invalid:', error);
-          // Continue without user_id - anonymous flagging is allowed
-        }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        userId = user.id;
       }
 
       const { data, error } = await supabase
@@ -78,9 +76,18 @@ serve(async (req) => {
       );
     }
     
+    // Validate message exists and has valid length
     if (!message || typeof message !== 'string') {
       return new Response(
         JSON.stringify({ error: "Message is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    // Limit message length to prevent resource exhaustion and high AI costs
+    if (message.length > 10000) {
+      return new Response(
+        JSON.stringify({ error: "Message must be 10,000 characters or less" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
