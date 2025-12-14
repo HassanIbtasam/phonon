@@ -25,6 +25,13 @@ interface SpeechRecognition extends EventTarget {
   start(): void;
   stop(): void;
   abort(): void;
+  onstart: (() => void) | null;
+  onaudiostart: (() => void) | null;
+  onsoundstart: (() => void) | null;
+  onspeechstart: (() => void) | null;
+  onspeechend: (() => void) | null;
+  onsoundend: (() => void) | null;
+  onaudioend: (() => void) | null;
   onresult: ((event: SpeechRecognitionEvent) => void) | null;
   onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
   onend: (() => void) | null;
@@ -168,15 +175,31 @@ export const LiveScamDetection = () => {
   const [transcripts, setTranscripts] = useState<TranscriptSegment[]>([]);
   const [currentTranscript, setCurrentTranscript] = useState("");
   const [highRiskDetected, setHighRiskDetected] = useState(false);
+  const [debugLogs, setDebugLogs] = useState<string[]>([]);
+  const [showDebug, setShowDebug] = useState(false);
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const isListeningRef = useRef(false); // Use ref to avoid stale closure
   const segmentIdRef = useRef(0);
   const transcriptsEndRef = useRef<HTMLDivElement>(null);
 
+  // Debug logging helper
+  const addDebugLog = useCallback((message: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    console.log(`[LiveScam ${timestamp}] ${message}`);
+    setDebugLogs(prev => [...prev.slice(-20), `[${timestamp}] ${message}`]);
+  }, []);
+
   // Check for Web Speech API support
   const isSupported = typeof window !== 'undefined' && 
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+
+  useEffect(() => {
+    addDebugLog(`Browser: ${navigator.userAgent}`);
+    addDebugLog(`SpeechRecognition supported: ${isSupported}`);
+    addDebugLog(`window.SpeechRecognition: ${!!window.SpeechRecognition}`);
+    addDebugLog(`window.webkitSpeechRecognition: ${!!window.webkitSpeechRecognition}`);
+  }, [isSupported, addDebugLog]);
 
   // Scroll to latest transcript
   useEffect(() => {
@@ -205,13 +228,46 @@ export const LiveScamDetection = () => {
 
   // Initialize speech recognition
   const initRecognition = useCallback(() => {
+    addDebugLog('Initializing speech recognition...');
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return null;
+    if (!SpeechRecognition) {
+      addDebugLog('ERROR: SpeechRecognition not available');
+      return null;
+    }
 
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = language === 'ar' ? 'ar-SA' : 'en-US';
+    addDebugLog(`Language set to: ${recognition.lang}`);
+
+    recognition.onstart = () => {
+      addDebugLog('✓ Speech recognition STARTED - listening for audio');
+    };
+
+    recognition.onaudiostart = () => {
+      addDebugLog('✓ Audio capture STARTED - microphone is receiving audio');
+    };
+
+    recognition.onsoundstart = () => {
+      addDebugLog('✓ Sound DETECTED - audio input received');
+    };
+
+    recognition.onspeechstart = () => {
+      addDebugLog('✓ Speech DETECTED - voice recognized');
+    };
+
+    recognition.onspeechend = () => {
+      addDebugLog('Speech ended');
+    };
+
+    recognition.onsoundend = () => {
+      addDebugLog('Sound ended');
+    };
+
+    recognition.onaudioend = () => {
+      addDebugLog('Audio capture ended');
+    };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let interimTranscript = '';
@@ -226,9 +282,13 @@ export const LiveScamDetection = () => {
         }
       }
 
+      if (interimTranscript) {
+        addDebugLog(`Interim transcript: "${interimTranscript}"`);
+      }
       setCurrentTranscript(interimTranscript);
 
       if (finalTranscript.trim()) {
+        addDebugLog(`✓ FINAL transcript: "${finalTranscript.trim()}"`);
         const segmentId = ++segmentIdRef.current;
         const newSegment: TranscriptSegment = {
           id: segmentId,
@@ -243,6 +303,7 @@ export const LiveScamDetection = () => {
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      addDebugLog(`ERROR: ${event.error} - ${event.message || 'No details'}`);
       console.error('Speech recognition error:', event.error);
       if (event.error === 'not-allowed') {
         setHasPermission(false);
@@ -251,24 +312,30 @@ export const LiveScamDetection = () => {
           description: t("live.permissionDeniedDesc"),
           variant: "destructive",
         });
+      } else if (event.error === 'no-speech') {
+        addDebugLog('No speech detected - microphone may not be picking up audio');
+      } else if (event.error === 'audio-capture') {
+        addDebugLog('Audio capture failed - check microphone permissions in browser');
+      } else if (event.error === 'network') {
+        addDebugLog('Network error - speech recognition requires internet connection');
       }
     };
 
     recognition.onend = () => {
-      console.log('Speech recognition ended, isListeningRef:', isListeningRef.current);
+      addDebugLog(`Recognition ended, isListeningRef: ${isListeningRef.current}`);
       // Auto-restart if still listening (handles browser stopping)
       if (isListeningRef.current) {
         try {
-          console.log('Restarting speech recognition...');
+          addDebugLog('Auto-restarting recognition...');
           recognition.start();
         } catch (e) {
-          console.log('Recognition restart failed:', e);
+          addDebugLog(`Restart failed: ${e}`);
         }
       }
     };
 
     return recognition;
-  }, [language, analyzeTranscript, t, toast]);
+  }, [language, addDebugLog, analyzeTranscript, t, toast]);
 
   // Request microphone permission
   const requestPermission = async () => {
@@ -607,6 +674,40 @@ export const LiveScamDetection = () => {
           <p className="text-center text-muted-foreground text-sm mt-6">
             {t("live.tip")}
           </p>
+
+          {/* Debug Panel */}
+          <div className="mt-6">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowDebug(!showDebug)}
+              className="text-xs text-muted-foreground"
+            >
+              {showDebug ? "Hide Debug Logs" : "Show Debug Logs"}
+            </Button>
+            
+            {showDebug && (
+              <Card className="mt-2 p-4 border-yellow-500/30 bg-yellow-500/5">
+                <h4 className="font-mono text-sm font-semibold mb-2 text-yellow-600">Debug Logs</h4>
+                <div className="font-mono text-xs space-y-1 max-h-[200px] overflow-y-auto">
+                  {debugLogs.length === 0 ? (
+                    <p className="text-muted-foreground">No logs yet. Start monitoring to see activity.</p>
+                  ) : (
+                    debugLogs.map((log, i) => (
+                      <p key={i} className={cn(
+                        "whitespace-pre-wrap",
+                        log.includes('ERROR') ? 'text-red-500' : 
+                        log.includes('✓') ? 'text-green-500' : 
+                        'text-muted-foreground'
+                      )}>
+                        {log}
+                      </p>
+                    ))
+                  )}
+                </div>
+              </Card>
+            )}
+          </div>
         </>
       )}
     </div>
