@@ -5,7 +5,6 @@ import { Shield, Mic, MicOff, AlertTriangle, CheckCircle, Loader2 } from "lucide
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useUsageTracking } from "@/hooks/use-usage-tracking";
-import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 // Web Speech API TypeScript declarations
@@ -47,8 +46,117 @@ interface TranscriptSegment {
   text: string;
   risk?: "low" | "medium" | "high";
   reason?: string;
-  analyzing?: boolean;
+  matchedPhrases?: string[];
 }
+
+// Common scam phrases in English and Arabic
+const SCAM_PHRASES = {
+  high: [
+    // English - High Risk
+    "send money", "wire transfer", "western union", "moneygram",
+    "gift card", "itunes card", "google play card", "amazon card",
+    "bank account details", "credit card number", "cvv", "pin number",
+    "social security", "password", "one time code", "otp",
+    "verify your account", "account suspended", "urgent action required",
+    "you've won", "lottery winner", "inheritance", "prince",
+    "remote access", "teamviewer", "anydesk", "download this software",
+    "pay now or", "arrest warrant", "legal action", "police",
+    "irs", "tax refund", "government grant",
+    // Arabic - High Risk
+    "أرسل المال", "حوالة مالية", "ويسترن يونيون", "تحويل بنكي",
+    "بطاقة هدية", "بطاقة آيتونز", "بطاقة جوجل بلاي",
+    "رقم الحساب البنكي", "رقم البطاقة", "الرقم السري", "رمز التحقق",
+    "تحقق من حسابك", "حسابك موقوف", "إجراء عاجل",
+    "لقد فزت", "جائزة", "ميراث", "أمير",
+    "الوصول عن بعد", "حمل هذا البرنامج",
+    "ادفع الآن", "أمر اعتقال", "إجراء قانوني", "الشرطة",
+  ],
+  medium: [
+    // English - Medium Risk
+    "click this link", "update your information", "confirm your identity",
+    "limited time offer", "act now", "don't miss out", "expires today",
+    "free money", "easy money", "work from home", "investment opportunity",
+    "guaranteed returns", "double your money", "crypto", "bitcoin",
+    "urgent", "immediately", "right now", "hurry",
+    "keep this secret", "don't tell anyone", "confidential",
+    "tech support", "microsoft support", "apple support",
+    "your computer has virus", "infected",
+    // Arabic - Medium Risk
+    "اضغط على الرابط", "حدث معلوماتك", "أكد هويتك",
+    "عرض محدود", "تصرف الآن", "لا تفوت الفرصة", "ينتهي اليوم",
+    "مال مجاني", "مال سهل", "العمل من المنزل", "فرصة استثمارية",
+    "عوائد مضمونة", "ضاعف أموالك", "بيتكوين",
+    "عاجل", "فوراً", "الآن", "أسرع",
+    "اجعل هذا سراً", "لا تخبر أحداً", "سري",
+    "الدعم الفني", "جهازك مصاب بفيروس",
+  ],
+  low: [
+    // English - Low Risk (suspicious but not definitive)
+    "special offer", "discount", "promotion", "deal",
+    "call back", "return my call", "callback number",
+    "verify", "confirm", "update",
+    // Arabic - Low Risk
+    "عرض خاص", "خصم", "ترويج", "صفقة",
+    "اتصل بي", "أعد الاتصال",
+    "تأكيد", "تحديث",
+  ]
+};
+
+// Analyze text for scam phrases
+const analyzeForScamPhrases = (text: string): { risk: "low" | "medium" | "high"; matchedPhrases: string[]; reason: string } => {
+  const lowerText = text.toLowerCase();
+  const matchedHigh: string[] = [];
+  const matchedMedium: string[] = [];
+  const matchedLow: string[] = [];
+
+  // Check high-risk phrases
+  for (const phrase of SCAM_PHRASES.high) {
+    if (lowerText.includes(phrase.toLowerCase())) {
+      matchedHigh.push(phrase);
+    }
+  }
+
+  // Check medium-risk phrases
+  for (const phrase of SCAM_PHRASES.medium) {
+    if (lowerText.includes(phrase.toLowerCase())) {
+      matchedMedium.push(phrase);
+    }
+  }
+
+  // Check low-risk phrases
+  for (const phrase of SCAM_PHRASES.low) {
+    if (lowerText.includes(phrase.toLowerCase())) {
+      matchedLow.push(phrase);
+    }
+  }
+
+  // Determine risk level
+  if (matchedHigh.length > 0) {
+    return {
+      risk: "high",
+      matchedPhrases: matchedHigh,
+      reason: `Detected high-risk phrases: ${matchedHigh.slice(0, 3).join(", ")}`
+    };
+  } else if (matchedMedium.length >= 2 || (matchedMedium.length > 0 && matchedLow.length > 0)) {
+    return {
+      risk: "medium",
+      matchedPhrases: [...matchedMedium, ...matchedLow],
+      reason: `Detected suspicious phrases: ${[...matchedMedium, ...matchedLow].slice(0, 3).join(", ")}`
+    };
+  } else if (matchedMedium.length > 0 || matchedLow.length >= 2) {
+    return {
+      risk: "low",
+      matchedPhrases: [...matchedMedium, ...matchedLow],
+      reason: `Minor suspicious indicators: ${[...matchedMedium, ...matchedLow].slice(0, 3).join(", ")}`
+    };
+  }
+
+  return {
+    risk: "low",
+    matchedPhrases: [],
+    reason: "No suspicious phrases detected"
+  };
+};
 
 export const LiveScamDetection = () => {
   const { t, language } = useLanguage();
@@ -74,36 +182,23 @@ export const LiveScamDetection = () => {
     transcriptsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [transcripts, currentTranscript]);
 
-  // Analyze transcript with AI
-  const analyzeTranscript = useCallback(async (segmentId: number, text: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('detect-scam', {
-        body: { message: text }
+  // Analyze transcript locally with keyword matching
+  const analyzeTranscript = useCallback((segmentId: number, text: string) => {
+    const result = analyzeForScamPhrases(text);
+
+    setTranscripts(prev => prev.map(seg => 
+      seg.id === segmentId 
+        ? { ...seg, risk: result.risk, reason: result.reason, matchedPhrases: result.matchedPhrases }
+        : seg
+    ));
+
+    if (result.risk === 'high') {
+      setHighRiskDetected(true);
+      toast({
+        title: t("live.highRiskDetected"),
+        description: result.reason,
+        variant: "destructive",
       });
-
-      if (error) throw error;
-
-      setTranscripts(prev => prev.map(seg => 
-        seg.id === segmentId 
-          ? { ...seg, risk: data.risk, reason: data.reason, analyzing: false }
-          : seg
-      ));
-
-      if (data.risk === 'high') {
-        setHighRiskDetected(true);
-        toast({
-          title: t("live.highRiskDetected"),
-          description: data.reason,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error('Analysis error:', error);
-      setTranscripts(prev => prev.map(seg => 
-        seg.id === segmentId 
-          ? { ...seg, analyzing: false }
-          : seg
-      ));
     }
   }, [t, toast]);
 
@@ -137,11 +232,11 @@ export const LiveScamDetection = () => {
         const newSegment: TranscriptSegment = {
           id: segmentId,
           text: finalTranscript.trim(),
-          analyzing: true
         };
         
         setTranscripts(prev => [...prev, newSegment]);
         setCurrentTranscript("");
+        // Instant local analysis
         analyzeTranscript(segmentId, finalTranscript.trim());
       }
     };
@@ -428,18 +523,13 @@ export const LiveScamDetection = () => {
                     <div className="flex items-start gap-3">
                       <div className="flex-1">
                         <p className="text-foreground">{segment.text}</p>
-                        {segment.analyzing ? (
-                          <div className="flex items-center gap-2 mt-2 text-muted-foreground text-sm">
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            {t("live.analyzing")}
-                          </div>
-                        ) : segment.reason && (
+                        {segment.reason && (
                           <p className="mt-2 text-sm text-muted-foreground">
                             {segment.reason}
                           </p>
                         )}
                       </div>
-                      {!segment.analyzing && getRiskIcon(segment.risk)}
+                      {getRiskIcon(segment.risk)}
                     </div>
                   </div>
                 ))}
