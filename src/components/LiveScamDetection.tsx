@@ -511,8 +511,66 @@ export const LiveScamDetection = () => {
             </Card>
           )}
 
-          {/* Transcript & Analysis */}
-          {(transcripts.length > 0 || currentTranscript) && (
+          {/* Live Transcript & Analysis - Always show when listening */}
+          {isListening && (
+            <Card className="p-6 border-primary/20">
+              <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                <Shield className="w-5 h-5 text-primary" />
+                {t("live.transcript")}
+                <span className="ml-auto text-sm font-normal text-muted-foreground flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  {t("live.liveTranscription")}
+                </span>
+              </h3>
+
+              <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                {transcripts.length === 0 && !currentTranscript && (
+                  <div className="p-4 rounded-lg border border-dashed border-muted text-center text-muted-foreground">
+                    <Mic className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p>{t("live.speakNow")}</p>
+                  </div>
+                )}
+
+                {transcripts.map((segment) => (
+                  <div
+                    key={segment.id}
+                    className={cn(
+                      "p-4 rounded-lg border transition-all",
+                      getRiskStyles(segment.risk)
+                    )}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1">
+                        <p className="text-foreground">{segment.text}</p>
+                        {segment.reason && (
+                          <p className="mt-2 text-sm text-muted-foreground">
+                            {segment.reason}
+                          </p>
+                        )}
+                      </div>
+                      {getRiskIcon(segment.risk)}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Current interim transcript - shows real-time what's being spoken */}
+                {currentTranscript && (
+                  <div className="p-4 rounded-lg border-2 border-primary/50 bg-primary/10">
+                    <p className="text-foreground font-medium">{currentTranscript}</p>
+                    <div className="flex items-center gap-2 mt-2 text-primary text-sm">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {t("live.listening")}
+                    </div>
+                  </div>
+                )}
+
+                <div ref={transcriptsEndRef} />
+              </div>
+            </Card>
+          )}
+
+          {/* Show past transcripts when not listening */}
+          {!isListening && transcripts.length > 0 && (
             <Card className="p-6 border-primary/20">
               <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
                 <Shield className="w-5 h-5 text-primary" />
@@ -541,19 +599,6 @@ export const LiveScamDetection = () => {
                     </div>
                   </div>
                 ))}
-
-                {/* Current interim transcript */}
-                {currentTranscript && (
-                  <div className="p-4 rounded-lg border border-dashed border-primary/50 bg-primary/5">
-                    <p className="text-muted-foreground italic">{currentTranscript}</p>
-                    <div className="flex items-center gap-2 mt-2 text-primary text-sm">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      {t("live.listening")}
-                    </div>
-                  </div>
-                )}
-
-                <div ref={transcriptsEndRef} />
               </div>
             </Card>
           )}
