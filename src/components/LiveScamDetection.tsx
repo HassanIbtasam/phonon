@@ -170,6 +170,7 @@ export const LiveScamDetection = () => {
   const [highRiskDetected, setHighRiskDetected] = useState(false);
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const isListeningRef = useRef(false); // Use ref to avoid stale closure
   const segmentIdRef = useRef(0);
   const transcriptsEndRef = useRef<HTMLDivElement>(null);
 
@@ -254,18 +255,20 @@ export const LiveScamDetection = () => {
     };
 
     recognition.onend = () => {
+      console.log('Speech recognition ended, isListeningRef:', isListeningRef.current);
       // Auto-restart if still listening (handles browser stopping)
-      if (isListening && recognitionRef.current) {
+      if (isListeningRef.current) {
         try {
-          recognitionRef.current.start();
+          console.log('Restarting speech recognition...');
+          recognition.start();
         } catch (e) {
-          console.log('Recognition ended');
+          console.log('Recognition restart failed:', e);
         }
       }
     };
 
     return recognition;
-  }, [language, isListening, analyzeTranscript, t, toast]);
+  }, [language, analyzeTranscript, t, toast]);
 
   // Request microphone permission
   const requestPermission = async () => {
@@ -293,21 +296,24 @@ export const LiveScamDetection = () => {
     const canProceed = await checkAndIncrement('live_call', language);
     if (!canProceed) return;
 
-    if (!recognitionRef.current) {
-      recognitionRef.current = initRecognition();
-    }
+    // Create fresh recognition instance
+    recognitionRef.current = initRecognition();
 
     if (recognitionRef.current) {
       try {
-        recognitionRef.current.start();
+        isListeningRef.current = true;
         setIsListening(true);
+        recognitionRef.current.start();
         setHighRiskDetected(false);
+        console.log('Speech recognition started');
         toast({
           title: t("live.recordingStarted"),
           description: t("live.recordingDesc"),
         });
       } catch (error) {
         console.error('Failed to start recognition:', error);
+        isListeningRef.current = false;
+        setIsListening(false);
         toast({
           title: t("live.recordingFailed"),
           description: t("live.recordingFailedDesc"),
@@ -319,6 +325,8 @@ export const LiveScamDetection = () => {
 
   // Stop listening
   const stopListening = () => {
+    console.log('Stopping speech recognition');
+    isListeningRef.current = false;
     if (recognitionRef.current) {
       recognitionRef.current.stop();
       recognitionRef.current = null;
