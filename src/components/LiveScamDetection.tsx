@@ -5,9 +5,7 @@ import { Shield, Mic, MicOff, AlertTriangle, CheckCircle, Loader2 } from "lucide
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useUsageTracking } from "@/hooks/use-usage-tracking";
-import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { useScribe, CommitStrategy } from "@elevenlabs/react";
 
 interface TranscriptSegment {
   id: number;
@@ -122,6 +120,12 @@ const analyzeForScamPhrases = (text: string): { risk: "low" | "medium" | "high";
   };
 };
 
+// Check for Web Speech API support
+const getSpeechRecognition = (): any => {
+  if (typeof window === 'undefined') return null;
+  return (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition || null;
+};
+
 export const LiveScamDetection = () => {
   const { t, language } = useLanguage();
   const { toast } = useToast();
@@ -131,19 +135,26 @@ export const LiveScamDetection = () => {
   const [isListening, setIsListening] = useState(false);
   const [transcripts, setTranscripts] = useState<TranscriptSegment[]>([]);
   const [highRiskDetected, setHighRiskDetected] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [debugLogs, setDebugLogs] = useState<string[]>([]);
-  const [showDebug, setShowDebug] = useState(false);
+  const [currentPartial, setCurrentPartial] = useState("");
+  const [isSupported, setIsSupported] = useState(true);
   
   const segmentIdRef = useRef(0);
   const transcriptsEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
+  const isListeningRef = useRef(false);
 
-  // Debug logging helper
-  const addDebugLog = useCallback((message: string) => {
-    const timestamp = new Date().toLocaleTimeString();
-    console.log(`[LiveScam ${timestamp}] ${message}`);
-    setDebugLogs(prev => [...prev.slice(-20), `[${timestamp}] ${message}`]);
+  // Check browser support on mount
+  useEffect(() => {
+    const SpeechRecognitionClass = getSpeechRecognition();
+    if (!SpeechRecognitionClass) {
+      setIsSupported(false);
+    }
   }, []);
+
+  // Scroll to latest transcript
+  useEffect(() => {
+    transcriptsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [transcripts, currentPartial]);
 
   // Analyze transcript locally with keyword matching
   const analyzeTranscript = useCallback((text: string) => {
@@ -170,40 +181,17 @@ export const LiveScamDetection = () => {
     }
   }, [t, toast]);
 
-  // ElevenLabs Scribe hook for realtime transcription
-  const scribe = useScribe({
-    modelId: "scribe_v2_realtime",
-    commitStrategy: CommitStrategy.VAD,
-    onPartialTranscript: (data) => {
-      addDebugLog(`Partial: "${data.text}"`);
-    },
-    onCommittedTranscript: (data) => {
-      addDebugLog(`✓ Committed: "${data.text}"`);
-      if (data.text.trim()) {
-        analyzeTranscript(data.text.trim());
-      }
-    },
-  });
-
-  // Scroll to latest transcript
-  useEffect(() => {
-    transcriptsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [transcripts, scribe.partialTranscript]);
-
   // Request microphone permission
   const requestPermission = async () => {
     try {
-      addDebugLog("Requesting microphone permission...");
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach(track => track.stop());
       setHasPermission(true);
-      addDebugLog("✓ Microphone permission granted");
       toast({
         title: t("live.permissionGranted"),
         description: t("live.permissionDesc"),
       });
     } catch (error) {
-      addDebugLog(`ERROR: Permission denied - ${error}`);
       setHasPermission(false);
       toast({
         title: t("live.permissionDenied"),
@@ -213,84 +201,123 @@ export const LiveScamDetection = () => {
     }
   };
 
-  // Start listening with ElevenLabs
+  // Start listening with Web Speech API
   const startListening = async () => {
     // Check usage limit
     const canProceed = await checkAndIncrement('live_call', language);
     if (!canProceed) return;
 
-    setIsConnecting(true);
-    addDebugLog("Starting ElevenLabs realtime transcription...");
+    const SpeechRecognition = getSpeechRecognition();
+    if (!SpeechRecognition) {
+      toast({
+        title: "Not Supported",
+        description: "Speech recognition is not supported in this browser. Please use Chrome or Edge.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
-      // Get token from edge function
-      addDebugLog("Fetching ElevenLabs token...");
-      const { data, error } = await supabase.functions.invoke("elevenlabs-scribe-token");
+      const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
       
-      if (error) {
-        throw new Error(`Token fetch failed: ${error.message}`);
-      }
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = language === 'ar' ? 'ar-SA' : 'en-US';
 
-      if (!data?.token) {
-        throw new Error("No token received from server");
-      }
+      recognition.onresult = (event) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
 
-      addDebugLog("✓ Token received, connecting to ElevenLabs...");
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
+        }
 
-      // Connect to ElevenLabs with microphone
-      await scribe.connect({
-        token: data.token,
-        microphone: {
-          echoCancellation: true,
-          noiseSuppression: true,
-        },
-      });
+        setCurrentPartial(interimTranscript);
 
-      addDebugLog("✓ Connected to ElevenLabs realtime transcription");
+        if (finalTranscript.trim()) {
+          setCurrentPartial("");
+          analyzeTranscript(finalTranscript.trim());
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        if (event.error === 'not-allowed') {
+          setHasPermission(false);
+        } else if (event.error !== 'aborted' && isListeningRef.current) {
+          // Try to restart on recoverable errors
+          setTimeout(() => {
+            if (isListeningRef.current && recognitionRef.current) {
+              try {
+                recognitionRef.current.start();
+              } catch (e) {
+                console.error('Failed to restart recognition:', e);
+              }
+            }
+          }, 500);
+        }
+      };
+
+      recognition.onend = () => {
+        // Auto-restart if still supposed to be listening
+        if (isListeningRef.current) {
+          try {
+            recognition.start();
+          } catch (e) {
+            console.error('Failed to restart recognition on end:', e);
+          }
+        }
+      };
+
+      recognition.start();
+      isListeningRef.current = true;
       setIsListening(true);
       setHighRiskDetected(false);
+      
       toast({
         title: t("live.recordingStarted"),
         description: t("live.recordingDesc"),
       });
     } catch (error) {
-      addDebugLog(`ERROR: ${error}`);
-      console.error('Failed to start transcription:', error);
+      console.error('Failed to start speech recognition:', error);
       toast({
         title: t("live.recordingFailed"),
-        description: error instanceof Error ? error.message : t("live.recordingFailedDesc"),
+        description: t("live.recordingFailedDesc"),
         variant: "destructive",
       });
-    } finally {
-      setIsConnecting(false);
     }
   };
 
   // Stop listening
   const stopListening = () => {
-    addDebugLog("Stopping transcription...");
-    scribe.disconnect();
+    isListeningRef.current = false;
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
     setIsListening(false);
+    setCurrentPartial("");
     toast({
       title: t("live.recordingStopped"),
       description: t("live.recordingStoppedDesc"),
     });
   };
 
-  // Update listening state based on scribe connection
-  useEffect(() => {
-    if (!scribe.isConnected && isListening) {
-      addDebugLog("Connection lost, resetting state");
-      setIsListening(false);
-    }
-  }, [scribe.isConnected, isListening, addDebugLog]);
-
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      scribe.disconnect();
+      isListeningRef.current = false;
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
     };
-  }, [scribe]);
+  }, []);
 
   const getRiskStyles = (risk?: string) => {
     switch (risk) {
@@ -317,6 +344,26 @@ export const LiveScamDetection = () => {
         return null;
     }
   };
+
+  // Browser not supported
+  if (!isSupported) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="text-center mb-8">
+          <h1 className="font-display text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
+            {t("live.title")}
+          </h1>
+        </div>
+        <Card className="p-8 text-center border-destructive/20">
+          <MicOff className="w-16 h-16 text-destructive mx-auto mb-4" />
+          <h3 className="text-xl font-semibold mb-2">Browser Not Supported</h3>
+          <p className="text-muted-foreground">
+            Speech recognition requires Chrome, Edge, or Safari. Please switch to a supported browser.
+          </p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -389,10 +436,10 @@ export const LiveScamDetection = () => {
             </div>
 
             <h3 className="text-xl font-semibold mb-2">
-              {isConnecting ? t("live.analyzing") : isListening ? t("live.monitoring") : t("live.ready")}
+              {isListening ? t("live.monitoring") : t("live.ready")}
             </h3>
             <p className="text-muted-foreground mb-6">
-              {isConnecting ? "Connecting to transcription service..." : isListening ? t("live.recordingInProgress") : t("live.clickToStart")}
+              {isListening ? t("live.recordingInProgress") : t("live.clickToStart")}
             </p>
 
             <Button 
@@ -400,22 +447,16 @@ export const LiveScamDetection = () => {
               size="lg"
               variant={isListening ? "destructive" : "default"}
               className="min-w-[200px]"
-              disabled={isConnecting}
             >
-              {isConnecting ? (
-                <>
-                  <Loader2 className="ltr:mr-2 rtl:ml-2 h-5 w-5 animate-spin" />
-                  Connecting...
-                </>
-              ) : isListening ? (
+              {isListening ? (
                 <>
                   <MicOff className="ltr:mr-2 rtl:ml-2 h-5 w-5" />
-                  Stop Monitoring
+                  {t("live.stopMonitoring")}
                 </>
               ) : (
                 <>
                   <Mic className="ltr:mr-2 rtl:ml-2 h-5 w-5" />
-                  Start Monitoring
+                  {t("live.startMonitoring")}
                 </>
               )}
             </Button>
@@ -446,7 +487,7 @@ export const LiveScamDetection = () => {
               </h3>
 
               <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                {transcripts.length === 0 && !scribe.partialTranscript && (
+                {transcripts.length === 0 && !currentPartial && (
                   <div className="p-4 rounded-lg border border-dashed border-muted text-center text-muted-foreground">
                     <Mic className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     <p>{t("live.speakNow")}</p>
@@ -476,13 +517,13 @@ export const LiveScamDetection = () => {
                 ))}
 
                 {/* Current partial transcript */}
-                {scribe.partialTranscript && (
+                {currentPartial && (
                   <div className="p-4 rounded-lg border-2 border-primary/50 bg-primary/10">
-                    <p className="text-foreground font-medium">{scribe.partialTranscript}</p>
-                    <div className="flex items-center gap-2 mt-2 text-primary text-sm">
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                    <p className="text-foreground font-medium">{currentPartial}</p>
+                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                      <Loader2 className="w-3 h-3 animate-spin" />
                       {t("live.listening")}
-                    </div>
+                    </p>
                   </div>
                 )}
 
@@ -491,78 +532,26 @@ export const LiveScamDetection = () => {
             </Card>
           )}
 
-          {/* Show past transcripts when not listening */}
-          {!isListening && transcripts.length > 0 && (
-            <Card className="p-6 border-primary/20">
-              <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-                <Shield className="w-5 h-5 text-primary" />
-                {t("live.transcript")}
-              </h3>
-
-              <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                {transcripts.map((segment) => (
-                  <div
-                    key={segment.id}
-                    className={cn(
-                      "p-4 rounded-lg border transition-all",
-                      getRiskStyles(segment.risk)
-                    )}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex-1">
-                        <p className="text-foreground">{segment.text}</p>
-                        {segment.reason && (
-                          <p className="mt-2 text-sm text-muted-foreground">
-                            {segment.reason}
-                          </p>
-                        )}
-                      </div>
-                      {getRiskIcon(segment.risk)}
-                    </div>
-                  </div>
-                ))}
-              </div>
+          {/* Instructions */}
+          {!isListening && transcripts.length === 0 && (
+            <Card className="p-6 border-muted">
+              <h3 className="font-semibold mb-4">{t("live.howItWorks")}</h3>
+              <ul className="space-y-3 text-muted-foreground">
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center flex-shrink-0 text-sm">1</span>
+                  <span>{t("live.step1")}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center flex-shrink-0 text-sm">2</span>
+                  <span>{t("live.step2")}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center flex-shrink-0 text-sm">3</span>
+                  <span>{t("live.step3")}</span>
+                </li>
+              </ul>
             </Card>
           )}
-
-          {/* Usage Tip */}
-          <p className="text-center text-muted-foreground text-sm mt-6">
-            {t("live.tip")}
-          </p>
-
-          {/* Debug Panel */}
-          <div className="mt-6">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowDebug(!showDebug)}
-              className="text-xs text-muted-foreground"
-            >
-              {showDebug ? "Hide Debug Logs" : "Show Debug Logs"}
-            </Button>
-            
-            {showDebug && (
-              <Card className="mt-2 p-4 border-yellow-500/30 bg-yellow-500/5">
-                <h4 className="font-mono text-sm font-semibold mb-2 text-yellow-600">Debug Logs</h4>
-                <div className="font-mono text-xs space-y-1 max-h-[200px] overflow-y-auto">
-                  {debugLogs.length === 0 ? (
-                    <p className="text-muted-foreground">No logs yet. Start monitoring to see activity.</p>
-                  ) : (
-                    debugLogs.map((log, i) => (
-                      <p key={i} className={cn(
-                        "whitespace-pre-wrap",
-                        log.includes('ERROR') ? 'text-red-500' : 
-                        log.includes('✓') ? 'text-green-500' : 
-                        'text-muted-foreground'
-                      )}>
-                        {log}
-                      </p>
-                    ))
-                  )}
-                </div>
-              </Card>
-            )}
-          </div>
         </>
       )}
     </div>
