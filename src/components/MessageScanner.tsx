@@ -23,6 +23,7 @@ interface ScanResult {
 export const MessageScanner = () => {
   const [message, setMessage] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isFlagging, setIsFlagging] = useState(false);
   const [result, setResult] = useState<ScanResult | null>(null);
@@ -31,6 +32,24 @@ export const MessageScanner = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { checkAndIncrement } = useUsageTracking();
+
+  // Phone number validation (E.164 format)
+  const validatePhoneNumber = (phone: string): boolean => {
+    if (!phone.trim()) return true; // Optional field
+    const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+    return phoneRegex.test(phone.trim());
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPhoneNumber(value);
+    
+    if (value && !validatePhoneNumber(value)) {
+      setPhoneError(t("scanner.invalidPhoneFormat") || "Invalid phone format (e.g., +1234567890)");
+    } else {
+      setPhoneError(null);
+    }
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -49,6 +68,16 @@ export const MessageScanner = () => {
       toast({
         title: t("scanner.empty"),
         description: t("scanner.emptyDesc"),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate phone number before API call
+    if (phoneNumber && !validatePhoneNumber(phoneNumber)) {
+      toast({
+        title: t("scanner.invalidPhone") || "Invalid Phone Number",
+        description: t("scanner.invalidPhoneDesc") || "Please enter a valid phone number (e.g., +1234567890)",
         variant: "destructive",
       });
       return;
@@ -102,6 +131,16 @@ export const MessageScanner = () => {
       toast({
         title: t("scanner.empty"),
         description: "Please enter a phone number to flag",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate phone number before API call
+    if (!validatePhoneNumber(phoneNumber)) {
+      toast({
+        title: t("scanner.invalidPhone") || "Invalid Phone Number",
+        description: t("scanner.invalidPhoneDesc") || "Please enter a valid phone number (e.g., +1234567890)",
         variant: "destructive",
       });
       return;
@@ -276,9 +315,12 @@ export const MessageScanner = () => {
             type="tel"
             placeholder={t("scanner.phonePlaceholder")}
             value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            className="bg-secondary border-border h-10 md:h-11 text-sm md:text-base"
+            onChange={handlePhoneChange}
+            className={`bg-secondary border-border h-10 md:h-11 text-sm md:text-base ${phoneError ? 'border-destructive' : ''}`}
           />
+          {phoneError && (
+            <p className="text-xs text-destructive mt-1">{phoneError}</p>
+          )}
         </div>
 
         <Button
