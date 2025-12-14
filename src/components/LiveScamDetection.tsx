@@ -5,48 +5,9 @@ import { Shield, Mic, MicOff, AlertTriangle, CheckCircle, Loader2 } from "lucide
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useUsageTracking } from "@/hooks/use-usage-tracking";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-
-// Web Speech API TypeScript declarations
-interface SpeechRecognitionEvent extends Event {
-  resultIndex: number;
-  results: SpeechRecognitionResultList;
-}
-
-interface SpeechRecognitionErrorEvent extends Event {
-  error: string;
-  message: string;
-}
-
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  start(): void;
-  stop(): void;
-  abort(): void;
-  onstart: (() => void) | null;
-  onaudiostart: (() => void) | null;
-  onsoundstart: (() => void) | null;
-  onspeechstart: (() => void) | null;
-  onspeechend: (() => void) | null;
-  onsoundend: (() => void) | null;
-  onaudioend: (() => void) | null;
-  onresult: ((event: SpeechRecognitionEvent) => void) | null;
-  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
-  onend: (() => void) | null;
-}
-
-interface SpeechRecognitionConstructor {
-  new (): SpeechRecognition;
-}
-
-declare global {
-  interface Window {
-    SpeechRecognition?: SpeechRecognitionConstructor;
-    webkitSpeechRecognition?: SpeechRecognitionConstructor;
-  }
-}
+import { useScribe, CommitStrategy } from "@elevenlabs/react";
 
 interface TranscriptSegment {
   id: number;
@@ -116,28 +77,24 @@ const analyzeForScamPhrases = (text: string): { risk: "low" | "medium" | "high";
   const matchedMedium: string[] = [];
   const matchedLow: string[] = [];
 
-  // Check high-risk phrases
   for (const phrase of SCAM_PHRASES.high) {
     if (lowerText.includes(phrase.toLowerCase())) {
       matchedHigh.push(phrase);
     }
   }
 
-  // Check medium-risk phrases
   for (const phrase of SCAM_PHRASES.medium) {
     if (lowerText.includes(phrase.toLowerCase())) {
       matchedMedium.push(phrase);
     }
   }
 
-  // Check low-risk phrases
   for (const phrase of SCAM_PHRASES.low) {
     if (lowerText.includes(phrase.toLowerCase())) {
       matchedLow.push(phrase);
     }
   }
 
-  // Determine risk level
   if (matchedHigh.length > 0) {
     return {
       risk: "high",
@@ -173,13 +130,11 @@ export const LiveScamDetection = () => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [transcripts, setTranscripts] = useState<TranscriptSegment[]>([]);
-  const [currentTranscript, setCurrentTranscript] = useState("");
   const [highRiskDetected, setHighRiskDetected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [debugLogs, setDebugLogs] = useState<string[]>([]);
   const [showDebug, setShowDebug] = useState(false);
   
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const isListeningRef = useRef(false); // Use ref to avoid stale closure
   const segmentIdRef = useRef(0);
   const transcriptsEndRef = useRef<HTMLDivElement>(null);
 
@@ -190,31 +145,20 @@ export const LiveScamDetection = () => {
     setDebugLogs(prev => [...prev.slice(-20), `[${timestamp}] ${message}`]);
   }, []);
 
-  // Check for Web Speech API support
-  const isSupported = typeof window !== 'undefined' && 
-    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
-
-  useEffect(() => {
-    addDebugLog(`Browser: ${navigator.userAgent}`);
-    addDebugLog(`SpeechRecognition supported: ${isSupported}`);
-    addDebugLog(`window.SpeechRecognition: ${!!window.SpeechRecognition}`);
-    addDebugLog(`window.webkitSpeechRecognition: ${!!window.webkitSpeechRecognition}`);
-  }, [isSupported, addDebugLog]);
-
-  // Scroll to latest transcript
-  useEffect(() => {
-    transcriptsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [transcripts, currentTranscript]);
-
   // Analyze transcript locally with keyword matching
-  const analyzeTranscript = useCallback((segmentId: number, text: string) => {
+  const analyzeTranscript = useCallback((text: string) => {
     const result = analyzeForScamPhrases(text);
+    const segmentId = ++segmentIdRef.current;
 
-    setTranscripts(prev => prev.map(seg => 
-      seg.id === segmentId 
-        ? { ...seg, risk: result.risk, reason: result.reason, matchedPhrases: result.matchedPhrases }
-        : seg
-    ));
+    const newSegment: TranscriptSegment = {
+      id: segmentId,
+      text: text,
+      risk: result.risk,
+      reason: result.reason,
+      matchedPhrases: result.matchedPhrases
+    };
+
+    setTranscripts(prev => [...prev, newSegment]);
 
     if (result.risk === 'high') {
       setHighRiskDetected(true);
@@ -226,128 +170,40 @@ export const LiveScamDetection = () => {
     }
   }, [t, toast]);
 
-  // Initialize speech recognition
-  const initRecognition = useCallback(() => {
-    addDebugLog('Initializing speech recognition...');
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      addDebugLog('ERROR: SpeechRecognition not available');
-      return null;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = language === 'ar' ? 'ar-SA' : 'en-US';
-    addDebugLog(`Language set to: ${recognition.lang}`);
-
-    recognition.onstart = () => {
-      addDebugLog('✓ Speech recognition STARTED - listening for audio');
-    };
-
-    recognition.onaudiostart = () => {
-      addDebugLog('✓ Audio capture STARTED - microphone is receiving audio');
-    };
-
-    recognition.onsoundstart = () => {
-      addDebugLog('✓ Sound DETECTED - audio input received');
-    };
-
-    recognition.onspeechstart = () => {
-      addDebugLog('✓ Speech DETECTED - voice recognized');
-    };
-
-    recognition.onspeechend = () => {
-      addDebugLog('Speech ended');
-    };
-
-    recognition.onsoundend = () => {
-      addDebugLog('Sound ended');
-    };
-
-    recognition.onaudioend = () => {
-      addDebugLog('Audio capture ended');
-    };
-
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let interimTranscript = '';
-      let finalTranscript = '';
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript;
-        } else {
-          interimTranscript += transcript;
-        }
+  // ElevenLabs Scribe hook for realtime transcription
+  const scribe = useScribe({
+    modelId: "scribe_v2_realtime",
+    commitStrategy: CommitStrategy.VAD,
+    onPartialTranscript: (data) => {
+      addDebugLog(`Partial: "${data.text}"`);
+    },
+    onCommittedTranscript: (data) => {
+      addDebugLog(`✓ Committed: "${data.text}"`);
+      if (data.text.trim()) {
+        analyzeTranscript(data.text.trim());
       }
+    },
+  });
 
-      if (interimTranscript) {
-        addDebugLog(`Interim transcript: "${interimTranscript}"`);
-      }
-      setCurrentTranscript(interimTranscript);
-
-      if (finalTranscript.trim()) {
-        addDebugLog(`✓ FINAL transcript: "${finalTranscript.trim()}"`);
-        const segmentId = ++segmentIdRef.current;
-        const newSegment: TranscriptSegment = {
-          id: segmentId,
-          text: finalTranscript.trim(),
-        };
-        
-        setTranscripts(prev => [...prev, newSegment]);
-        setCurrentTranscript("");
-        // Instant local analysis
-        analyzeTranscript(segmentId, finalTranscript.trim());
-      }
-    };
-
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      addDebugLog(`ERROR: ${event.error} - ${event.message || 'No details'}`);
-      console.error('Speech recognition error:', event.error);
-      if (event.error === 'not-allowed') {
-        setHasPermission(false);
-        toast({
-          title: t("live.permissionDenied"),
-          description: t("live.permissionDeniedDesc"),
-          variant: "destructive",
-        });
-      } else if (event.error === 'no-speech') {
-        addDebugLog('No speech detected - microphone may not be picking up audio');
-      } else if (event.error === 'audio-capture') {
-        addDebugLog('Audio capture failed - check microphone permissions in browser');
-      } else if (event.error === 'network') {
-        addDebugLog('Network error - speech recognition requires internet connection');
-      }
-    };
-
-    recognition.onend = () => {
-      addDebugLog(`Recognition ended, isListeningRef: ${isListeningRef.current}`);
-      // Auto-restart if still listening (handles browser stopping)
-      if (isListeningRef.current) {
-        try {
-          addDebugLog('Auto-restarting recognition...');
-          recognition.start();
-        } catch (e) {
-          addDebugLog(`Restart failed: ${e}`);
-        }
-      }
-    };
-
-    return recognition;
-  }, [language, addDebugLog, analyzeTranscript, t, toast]);
+  // Scroll to latest transcript
+  useEffect(() => {
+    transcriptsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [transcripts, scribe.partialTranscript]);
 
   // Request microphone permission
   const requestPermission = async () => {
     try {
+      addDebugLog("Requesting microphone permission...");
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach(track => track.stop());
       setHasPermission(true);
+      addDebugLog("✓ Microphone permission granted");
       toast({
         title: t("live.permissionGranted"),
         description: t("live.permissionDesc"),
       });
     } catch (error) {
+      addDebugLog(`ERROR: Permission denied - ${error}`);
       setHasPermission(false);
       toast({
         title: t("live.permissionDenied"),
@@ -357,72 +213,84 @@ export const LiveScamDetection = () => {
     }
   };
 
-  // Start listening
+  // Start listening with ElevenLabs
   const startListening = async () => {
     // Check usage limit
     const canProceed = await checkAndIncrement('live_call', language);
     if (!canProceed) return;
 
-    // Create fresh recognition instance
-    recognitionRef.current = initRecognition();
+    setIsConnecting(true);
+    addDebugLog("Starting ElevenLabs realtime transcription...");
 
-    if (recognitionRef.current) {
-      try {
-        isListeningRef.current = true;
-        setIsListening(true);
-        recognitionRef.current.start();
-        setHighRiskDetected(false);
-        console.log('Speech recognition started');
-        toast({
-          title: t("live.recordingStarted"),
-          description: t("live.recordingDesc"),
-        });
-      } catch (error) {
-        console.error('Failed to start recognition:', error);
-        isListeningRef.current = false;
-        setIsListening(false);
-        toast({
-          title: t("live.recordingFailed"),
-          description: t("live.recordingFailedDesc"),
-          variant: "destructive",
-        });
+    try {
+      // Get token from edge function
+      addDebugLog("Fetching ElevenLabs token...");
+      const { data, error } = await supabase.functions.invoke("elevenlabs-scribe-token");
+      
+      if (error) {
+        throw new Error(`Token fetch failed: ${error.message}`);
       }
+
+      if (!data?.token) {
+        throw new Error("No token received from server");
+      }
+
+      addDebugLog("✓ Token received, connecting to ElevenLabs...");
+
+      // Connect to ElevenLabs with microphone
+      await scribe.connect({
+        token: data.token,
+        microphone: {
+          echoCancellation: true,
+          noiseSuppression: true,
+        },
+      });
+
+      addDebugLog("✓ Connected to ElevenLabs realtime transcription");
+      setIsListening(true);
+      setHighRiskDetected(false);
+      toast({
+        title: t("live.recordingStarted"),
+        description: t("live.recordingDesc"),
+      });
+    } catch (error) {
+      addDebugLog(`ERROR: ${error}`);
+      console.error('Failed to start transcription:', error);
+      toast({
+        title: t("live.recordingFailed"),
+        description: error instanceof Error ? error.message : t("live.recordingFailedDesc"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
     }
   };
 
   // Stop listening
   const stopListening = () => {
-    console.log('Stopping speech recognition');
-    isListeningRef.current = false;
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      recognitionRef.current = null;
-    }
+    addDebugLog("Stopping transcription...");
+    scribe.disconnect();
     setIsListening(false);
-    setCurrentTranscript("");
     toast({
       title: t("live.recordingStopped"),
       description: t("live.recordingStoppedDesc"),
     });
   };
 
+  // Update listening state based on scribe connection
+  useEffect(() => {
+    if (!scribe.isConnected && isListening) {
+      addDebugLog("Connection lost, resetting state");
+      setIsListening(false);
+    }
+  }, [scribe.isConnected, isListening, addDebugLog]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
+      scribe.disconnect();
     };
-  }, []);
-
-  // Re-init recognition when language changes
-  useEffect(() => {
-    if (isListening && recognitionRef.current) {
-      recognitionRef.current.stop();
-      recognitionRef.current = initRecognition();
-      recognitionRef.current?.start();
-    }
-  }, [language, initRecognition, isListening]);
+  }, [scribe]);
 
   const getRiskStyles = (risk?: string) => {
     switch (risk) {
@@ -449,25 +317,6 @@ export const LiveScamDetection = () => {
         return null;
     }
   };
-
-  if (!isSupported) {
-    return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h1 className="font-display text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
-            {t("live.title")}
-          </h1>
-        </div>
-        <Card className="p-12 text-center border-destructive/20">
-          <AlertTriangle className="w-16 h-16 text-destructive mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">Browser Not Supported</h3>
-          <p className="text-muted-foreground">
-            Your browser doesn't support speech recognition. Please use Chrome, Edge, or Safari.
-          </p>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -540,10 +389,10 @@ export const LiveScamDetection = () => {
             </div>
 
             <h3 className="text-xl font-semibold mb-2">
-              {isListening ? t("live.monitoring") : t("live.ready")}
+              {isConnecting ? t("live.analyzing") : isListening ? t("live.monitoring") : t("live.ready")}
             </h3>
             <p className="text-muted-foreground mb-6">
-              {isListening ? t("live.recordingInProgress") : t("live.clickToStart")}
+              {isConnecting ? "Connecting to transcription service..." : isListening ? t("live.recordingInProgress") : t("live.clickToStart")}
             </p>
 
             <Button 
@@ -551,8 +400,14 @@ export const LiveScamDetection = () => {
               size="lg"
               variant={isListening ? "destructive" : "default"}
               className="min-w-[200px]"
+              disabled={isConnecting}
             >
-              {isListening ? (
+              {isConnecting ? (
+                <>
+                  <Loader2 className="ltr:mr-2 rtl:ml-2 h-5 w-5 animate-spin" />
+                  Connecting...
+                </>
+              ) : isListening ? (
                 <>
                   <MicOff className="ltr:mr-2 rtl:ml-2 h-5 w-5" />
                   Stop Monitoring
@@ -578,7 +433,7 @@ export const LiveScamDetection = () => {
             </Card>
           )}
 
-          {/* Live Transcript & Analysis - Always show when listening */}
+          {/* Live Transcript & Analysis */}
           {isListening && (
             <Card className="p-6 border-primary/20">
               <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
@@ -591,7 +446,7 @@ export const LiveScamDetection = () => {
               </h3>
 
               <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                {transcripts.length === 0 && !currentTranscript && (
+                {transcripts.length === 0 && !scribe.partialTranscript && (
                   <div className="p-4 rounded-lg border border-dashed border-muted text-center text-muted-foreground">
                     <Mic className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     <p>{t("live.speakNow")}</p>
@@ -620,10 +475,10 @@ export const LiveScamDetection = () => {
                   </div>
                 ))}
 
-                {/* Current interim transcript - shows real-time what's being spoken */}
-                {currentTranscript && (
+                {/* Current partial transcript */}
+                {scribe.partialTranscript && (
                   <div className="p-4 rounded-lg border-2 border-primary/50 bg-primary/10">
-                    <p className="text-foreground font-medium">{currentTranscript}</p>
+                    <p className="text-foreground font-medium">{scribe.partialTranscript}</p>
                     <div className="flex items-center gap-2 mt-2 text-primary text-sm">
                       <Loader2 className="w-4 h-4 animate-spin" />
                       {t("live.listening")}
